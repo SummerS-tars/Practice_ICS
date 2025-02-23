@@ -1,6 +1,20 @@
 # Introduction to ICS
 
+- [Prepare](#prepare)
 - [1. Grading](#1-grading)
+
+## Prepare
+
+1. Architecture  
+    Intel IA-64  
+2. Operating System  
+    Linux
+3. Programming Language  
+    ANSI C
+4. Utility(实用程序)  
+    GNU
+5, Network  
+    TCP/IP, Socket  
 
 ## 1. Grading
 

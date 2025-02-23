@@ -9,7 +9,9 @@ Courses About Systems:
 5. Operating Systems
 6. e.t.c.
 
-## Notes
+## Brief Introduction
+
+This part is about CSAPP Chapter 1  
 
 ### What's about CSAPP?
 
@@ -42,3 +44,46 @@ Courses About Systems:
 2. Most CS courses emphasize abstraction  
     - Abstract data types  
     - Asymptotic analysis(渐进分析)  
+
+## Class 1 Notes : Bits,Bytes and Integers
+
+CSAPP Chapter 2 信息的表示和处理  
+
+### Representing data as bits
+
+**Bits:**  
+
+- **Each bit is 0 or 1**  
+- Why bits? Electronic Implementation(电子实现)  
+    - Easy to store with bistable elements(双稳元件)
+    - Reliably transmitted on noisy and inaccurate wires  
+
+**What is Byte:**  
+
+- 1 Byte = 8 bits  
+    - Binary $$00000000_{2} to 11111111_{2}$$
+    - Decimal $$0_{10} to 255_{10}$$
+    - Hexadecimal $$00_{16} to FF_{16}$$
+
+### Bit-level manipulations
+
+boolean algebra(布尔代数)  
+
+General Operators:  
+`&` `|` `^` `~`  
+Other Operators:  
+`<<` `>>`(移位运算符)  
+
+Contrast: Logic Operations in C  
+
+- Contrast to Bit-Level Operators  
+    - Logic Operations:  
+        `&&` `||` `!`  
+        - View `0` as `False`  
+        - **Anything nonzero is `True`**  
+        - Always return `0` or `1`  
+- Examples:  
+    - !0x41 = 0
+    - !0x00 = 1
+    - !!0x41 = 1
+    - p && *p ( avoid null pointer dereference(避免空指针解引用) )
