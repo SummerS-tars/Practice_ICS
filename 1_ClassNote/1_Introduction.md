@@ -9,17 +9,27 @@ Courses About Systems:
 5. Operating Systems
 6. e.t.c.
 
-## Brief Introduction
+- [1. Brief Introduction](#1-brief-introduction)
+    - [1.1. What's about CSAPP?](#11-whats-about-csapp)
+    - [1.2. Power of Abstraction](#12-power-of-abstraction)
+    - [1.3. Importance of understanding HOW things work](#13-importance-of-understanding-how-things-work)
+- [2. Class 1 Notes : Bits,Bytes and Integers](#2-class-1-notes--bitsbytes-and-integers)
+    - [2.1. Representing data as bits](#21-representing-data-as-bits)
+    - [2.2. Bit-level manipulations](#22-bit-level-manipulations)
+    - [Integers](#integers)
+        - [Representation : unsigned and signed](#representation--unsigned-and-signed)
+
+## 1. Brief Introduction
 
 This part is about CSAPP Chapter 1  
 
-### What's about CSAPP?
+### 1.1. What's about CSAPP?
 
 1. System Knowledge
     - How hardware and software work together  
 2. Useful outcomes  
 
-### Power of Abstraction
+### 1.2. Power of Abstraction
 
 1. tiers of computer system  
     - Software
@@ -37,7 +47,7 @@ This part is about CSAPP Chapter 1
     - 2-3 Virtual Memory
     - 3-3 Files
 
-### Importance of understanding HOW things work  
+### 1.3. Importance of understanding HOW things work  
 
 1. Why?  
     - Not only abstraction, but also reality  
@@ -45,11 +55,11 @@ This part is about CSAPP Chapter 1
     - Abstract data types  
     - Asymptotic analysis(渐进分析)  
 
-## Class 1 Notes : Bits,Bytes and Integers
+## 2. Class 1 Notes : Bits,Bytes and Integers
 
 CSAPP Chapter 2 信息的表示和处理  
 
-### Representing data as bits
+### 2.1. Representing data as bits
 
 **Bits:**  
 
@@ -65,13 +75,34 @@ CSAPP Chapter 2 信息的表示和处理
     - Decimal $$0_{10} to 255_{10}$$
     - Hexadecimal $$00_{16} to FF_{16}$$
 
-### Bit-level manipulations
+*Hexadecimal Reference Table*  
+
+| Decimal | Hexadecimal | Binary |
+| :-----: | :---------: | :----: |
+| 0       | 0           | 0000   |
+| 1       | 1           | 0001   |
+| 2       | 2           | 0010   |
+| 3       | 3           | 0011   |
+| 4       | 4           | 0100   |
+| 5       | 5           | 0101   |
+| 6       | 6           | 0110   |
+| 7       | 7           | 0111   |
+| 8       | 8           | 1000   |
+| 9       | 9           | 1001   |
+| 10      | A           | 1010   |
+| 11      | B           | 1011   |
+| 12      | C           | 1100   |
+| 13      | D           | 1101   |
+| 14      | E           | 1110   |
+| 15      | F           | 1111   |
+
+### 2.2. Bit-level manipulations
 
 boolean algebra(布尔代数)  
 
 General Operators:  
 `&` `|` `^` `~`  
-Other Operators:  
+Shift Operation(移位运算):
 `<<` `>>`(移位运算符)  
 
 Contrast: Logic Operations in C  
@@ -87,3 +118,13 @@ Contrast: Logic Operations in C
     - !0x00 = 1
     - !!0x41 = 1
     - p && *p ( avoid null pointer dereference(避免空指针解引用) )
+
+Problem : Symmetric Difference(对称差) ? P15  
+
+### Integers
+
+#### Representation : unsigned and signed  
+
+`unsigned` and `signed`  
+
+Important Concept : `Two's Complement(补码)`  
