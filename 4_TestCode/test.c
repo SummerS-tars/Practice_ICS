@@ -11,6 +11,9 @@ int main()
     {
         p += 1 << i ;
     }
-    printf("%d" , abs(p)) ;
+    printf("%d\n" , abs(p)) ;
+
+    printf("-2147483648 == 2147483647 + 1 : %s \n" , -2147483648 == 2147483647 + 1 ? "true" : "false") ;
+    scanf("%d" , &p) ;
     return 0 ;
 }
