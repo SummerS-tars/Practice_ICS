@@ -72,6 +72,11 @@
 			"spwn": "spwn build",
 			"pkl": "cd $dir && pkl eval -f yaml $fileName -o $fileNameWithoutExt.yaml",
 			"gleam": "gleam run -m $fileNameWithoutExt"
+		},
+		"files.associations": {
+			"limits.h": "c",
+			"syslimits.h": "c",
+			"stdlib.h": "c"
 		}
 	},
 }
