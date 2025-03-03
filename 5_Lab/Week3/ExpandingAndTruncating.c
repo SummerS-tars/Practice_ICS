@@ -1,6 +1,9 @@
 #include <stdio.h>
 
-//* 此处传入最大整数类型，基于转换规则，此处可以保证不会在传入int,short,long等类型传入时2进制数不会变
+/**
+ * use the biggest type to print the binary of the integer
+ * incase of losing bits
+ */ 
 void printIntegerBinary(long long n, int size)
 {
     int bytes = size ;
