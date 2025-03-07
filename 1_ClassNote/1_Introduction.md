@@ -58,7 +58,7 @@ This part is about CSAPP Chapter 1
 ## 2. Class 1 Notes : Bits,Bytes and Integers
 
 CSAPP Chapter 2 信息的表示和处理  
-续[Class 2 Notes](2_BitAndInteger.md/#)
+续[Class 2 Notes](./2_BitAndInteger.md)  
 
 ### 2.1. Representing data as bits
 

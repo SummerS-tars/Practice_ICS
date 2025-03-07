@@ -4,5 +4,8 @@
         "cmath": "c",
         "complex": "c",
         "cstdlib": "c"
-    }
+    },
+    "cSpell.words": [
+        "significand"
+    ]
 }
