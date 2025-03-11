@@ -143,7 +143,12 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+  /**
+   * use ~( (~x) & (~y) ) to select 0 ^ 0 as 0, and leave others to 1
+   * use ~( x & y ) to select 1 ^ 1 as 0 ,leave others to 1
+   * finally use & to get only 0 ^ 1 and 1 ^ 0 as 1
+   */
+  return (~((~x) & (~y))) & (~(x & y)) ;
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -152,9 +157,10 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int tmin(void) {
-
-  return 2;
-
+  /**
+   * Tmin is 10...000
+   */
+  return 1 << 31 ;
 }
 //2
 /*
@@ -165,7 +171,10 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+  /**
+   * Tmax * 2 + 2 --> 0
+   */
+  return !((x + 1) + x + 1) ;
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -176,7 +185,10 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  /**
+   * x + x * 2 + 2 --> 0
+   */
+  return !(x + x << 1 + 2) ;
 }
 /* 
  * negate - return -x 
@@ -186,7 +198,7 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return ~x + 1 ;
 }
 //3
 /* 
@@ -199,7 +211,13 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+  /**
+   * use +(~x+1) to -x
+   * less than 0x30 and 0x39 the sign bits are 1
+   * bigger than 0x30 and 0x39 the sign bits are 0
+   * bigger than 0x3n and less than 0x39 the sign bits are 1 and 0
+   */
+  return !!(((x + ~(0x30) + 1) ^ (x + ~(0x39) + 1)) & (1 << 31)) ;
 }
 /* 
  * conditional - same as x ? y : z 
@@ -209,7 +227,10 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  int boolization = !!x ;  // nonzero to 1 and 0 still 0
+  int selectY = y & (~boolization + 1) ;  // use 1 as -1 and 0 still 0
+  int selectZ = z & (boolization + ~1 + 1) ;// use 1 as 0 and 0 as -1
+  return selectY | selectZ ;
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
