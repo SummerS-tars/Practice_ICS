@@ -148,7 +148,9 @@ int bitXor(int x, int y) {
    * use ~( x & y ) to select 1 ^ 1 as 0 ,leave others to 1
    * finally use & to get only 0 ^ 1 and 1 ^ 0 as 1
    */
-  return (~((~x) & (~y))) & (~(x & y)) ;
+  int t1 = ~((~x) & (~y)) ;
+  int t2 = ~(x & y ) ;
+  return t1 & t2 ;
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -172,9 +174,12 @@ int tmin(void) {
  */
 int isTmax(int x) {
   /**
-   * Tmax * 2 + 2 --> 0
+   * there are many cases that Tmax and -1 have the same answer  
+   * the difficulty mostly lies in how to make they act differently
    */
-  return !((x + 1) + x + 1) ;
+  int t1 = x + 1 ; // only for -1 it should be 0
+  int t2 = t1 + x ; // only for Tmax and -1 it should be -1
+  return !(~t2) & !!t1 ; // use !!t1 to confirm -1 is excluded
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -185,10 +190,10 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  /**
-   * x + x * 2 + 2 --> 0
-   */
-  return !(x + x << 1 + 2) ;
+  int r = 0xAA ;  // 1010 1010
+  r = r + (r << 8) ;
+  r = r + (r << 16) ;
+  return !((x & r) ^ r) ;
 }
 /* 
  * negate - return -x 
@@ -212,12 +217,21 @@ int negate(int x) {
  */
 int isAsciiDigit(int x) {
   /**
-   * use +(~x+1) to -x
    * less than 0x30 and 0x39 the sign bits are 1
    * bigger than 0x30 and 0x39 the sign bits are 0
    * bigger than 0x3n and less than 0x39 the sign bits are 1 and 0
+   * 
+   * exceptional cases: overflow
    */
-  return !!(((x + ~(0x30) + 1) ^ (x + ~(0x39) + 1)) & (1 << 31)) ;
+  int drop = !(x & ~0x3F) ;  // get rid of the number have 1 after the 6th bit
+  int compare1 = x + (~0x30 + 1) ; // x - 0x30 --> nonnegative when x is digit
+  int compare2 = 0x39 + (~x + 1) ; // 0x39 - x --> nonnegative when x is digit
+  // when x is digit, the sign bits of compare1&2 are both 0
+  // else they are 1 and 0
+  // after xor and not operation
+  // only x is digit, the sign bit is 1
+  int t = ~(compare1 ^ compare2) ; 
+  return drop & (t >> 31) ;
 }
 /* 
  * conditional - same as x ? y : z 
@@ -240,9 +254,23 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  y = y + ~x + 1;   // y = y - x
-  int isPositive = !((1<<31) & y) ; // if y < 0 , the sign bit should be 1
-  return isPositive ;
+  /**
+   * use y - x can solve most questions  
+   * but not including overflow
+   * so we may ought to try another way or try to get rid of exceptional cases
+   * 
+   * here we try the latter
+   * we can find only when y < 0 and x > 0, the negative overflow may happen
+   * only when y > 0 and x < 0, the positive overflow may happen
+   */
+  // first get 1 if x is net while y is pos
+  int signBit1 = 1<<31 ;
+  int YNegAndXPos = ((y & signBit1) & (x ^ signBit1)) ; // y < 0 --> sign bit 1 and x >= 0 --> sign bit 0
+  int XNegAndYPos = ((x & signBit1) & (y ^ signBit1)) ; // similar to above one
+  int YMinusX = y + (~x + 1) ; // y - x
+  // (not overflowed) y - x < 0 --> sign bit 1
+
+  return (!YNegAndXPos) & ((!!XNegAndYPos) | (!((YMinusX>>31) & 1)));  
 }
 //4
 /* 
@@ -254,7 +282,11 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return 2;
+  /**
+   * for 0 and -0 the sign bits are both 0
+   * for x != 0, x and -x the sign bits are 1 and 0(or reversed)
+   */
+  return ((x | (~x + 1)) >> 31 ) + 1 ;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -269,7 +301,25 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+  int b16, b8, b4, b2, b1, b0;
+
+  // 如果 x 是负数，取反
+  x = x ^ (x >> 31);
+
+  // 二分查找法确定最高位的1的位置
+  b16 = !!(x >> 16) << 4;
+  x = x >> b16;
+  b8 = !!(x >> 8) << 3;
+  x = x >> b8;
+  b4 = !!(x >> 4) << 2;
+  x = x >> b4;
+  b2 = !!(x >> 2) << 1;
+  x = x >> b2;
+  b1 = !!(x >> 1);
+  x = x >> b1;
+  b0 = x;
+
+  return b16 + b8 + b4 + b2 + b1 + b0 + 1;
 }
 //float
 /* 

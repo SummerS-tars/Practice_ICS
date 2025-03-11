@@ -1,12 +1,14 @@
 #include <stdio.h>
+#include <limits.h>
 
-int isLessOrEqual(int x, int y) {
-  y = y + ~x + 1;   // y = y - x
-  int isPositive = !((1<<31) & y) ; // if y < 0 , the sign bit should be 1
-  return isPositive ;
+int allOddBits(int x) {
+  int r = 0xAA ;
+  r = r + (r << 8) ;
+  r = r + (r << 16) ;
+  return !((x & r) ^ r) ;
 }
 
 int main()
 {
-  printf("%d\n" , (1 << 31)) ;
+  printf("%d\n" , allOddBits(-2));
 }
