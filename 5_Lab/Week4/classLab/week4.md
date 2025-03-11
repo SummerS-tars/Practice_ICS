@@ -183,7 +183,7 @@ objdump -d gccLearning > gccLearningDisassemble.txt
     `gccLearningDisassemble.txt` 中的指令是从机器码反汇编得到的，包含了内存地址和机器码  
 3. 注释和标签：  
     `gccLearning.s` 中包含了注释和标签（如 .LC0、.LC1 等），这些标签用于标识数据和代码段  
-    `gccLearningDisassemble.txt` 中的标签是反汇编工具生成的，通常是内存地址（如 0000000000001139 <main>）  
+    `gccLearningDisassemble.txt` 中的标签是反汇编工具生成的，通常是内存地址（如 0000000000001139 \<main\>）  
 4. 数据段：  
     `gccLearning.s` 中的数据段（如 .rodata）包含了字符串和常量数据  
     `gccLearningDisassemble.txt` 中的数据段被反汇编工具解释为指令或数据  
