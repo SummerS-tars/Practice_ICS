@@ -4,7 +4,7 @@
 
 **What to do?**  
 
-do the work in `bits.c`   
+do the work in `bits.c`  
 
 **How to use?**  
 

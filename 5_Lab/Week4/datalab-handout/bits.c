@@ -227,7 +227,7 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  int boolization = !!x ;  // nonzero to 1 and 0 still 0
+  int boolization = !!x ;  // make x = nonzero to 1 and x = 0 still x = 0
   int selectY = y & (~boolization + 1) ;  // use 1 as -1 and 0 still 0
   int selectZ = z & (boolization + ~1 + 1) ;// use 1 as 0 and 0 as -1
   return selectY | selectZ ;
@@ -240,7 +240,9 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  y = y + ~x + 1;   // y = y - x
+  int isPositive = !((1<<31) & y) ; // if y < 0 , the sign bit should be 1
+  return isPositive ;
 }
 //4
 /* 
