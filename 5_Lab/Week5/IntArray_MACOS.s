@@ -16,23 +16,28 @@ _main:                                  ; @main
 	ldr	x8, [x8]
 	stur	x8, [x29, #-8]
 	str	wzr, [sp, #28]
-	adrp	x9, l___const.main.arr@PAGE
-	add	x9, x9, l___const.main.arr@PAGEOFF
-	ldr	q0, [x9]
 	add	x8, sp, #32
-	str	q0, [sp, #32]
-	ldr	w9, [x9, #16]
-	str	w9, [sp, #48]
+	str	xzr, [sp, #32]
+	str	xzr, [sp, #40]
+	str	wzr, [sp, #48]
 	mov	x9, x8
 	str	x9, [sp, #16]
-	ldr	w9, [sp, #44]
-	str	w9, [sp, #12]
 	mov	w9, #1                          ; =0x1
+	str	w9, [sp, #36]
+	ldr	w10, [sp, #36]
+	str	w10, [sp, #12]
 	str	w9, [sp, #8]
 	ldr	w9, [sp, #8]
-	add	w9, w9, #2
+	add	w10, w9, #1
+	mov	w9, #2                          ; =0x2
+	str	w9, [x8, w10, sxtw #2]
+	ldr	w9, [sp, #8]
+	add	w9, w9, #1
 	ldr	w8, [x8, w9, sxtw #2]
 	str	w8, [sp, #4]
+	ldr	x9, [sp, #16]
+	mov	w8, #3                          ; =0x3
+	str	w8, [x9, #12]
 	ldr	x8, [sp, #16]
 	ldr	w8, [x8, #12]
 	str	w8, [sp]
@@ -53,13 +58,4 @@ LBB0_2:
 	ret
 	.cfi_endproc
                                         ; -- End function
-	.section	__TEXT,__const
-	.p2align	2, 0x0                          ; @__const.main.arr
-l___const.main.arr:
-	.long	1                               ; 0x1
-	.long	2                               ; 0x2
-	.long	3                               ; 0x3
-	.long	4                               ; 0x4
-	.long	5                               ; 0x5
-
 .subsections_via_symbols
