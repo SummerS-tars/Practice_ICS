@@ -433,6 +433,6 @@ unsigned floatPower2(int x) {
     // e min : 1
     // e max : 254
     if(x < -126 ) return 0 ;
-    else if( x > -126) return 0xFF << 23 ;
+    else if( x > 127) return 0xFF << 23 ;
     else return (x + 127) << 23 ;
 }
