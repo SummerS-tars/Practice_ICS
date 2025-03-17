@@ -436,3 +436,37 @@ unsigned floatPower2(int x) {
     else if( x > 127) return 0xFF << 23 ;
     else return (x + 127) << 23 ;
 }
+
+/**
+ * coder@399cc0ca0454:~/project/5_Practice_ICS/5_Lab/Week4/datalab-handout$ ./dlc -e bits.c
+ * dlc:bits.c:154:bitXor: 7 operators
+ * dlc:bits.c:166:tmin: 1 operators
+ * dlc:bits.c:183:isTmax: 7 operators
+ * dlc:bits.c:197:allOddBits: 7 operators
+ * dlc:bits.c:207:negate: 2 operators
+ * dlc:bits.c:235:isAsciiDigit: 13 operators
+ * dlc:bits.c:248:conditional: 10 operators
+ * dlc:bits.c:274:isLessOrEqual: 18 operators
+ * dlc:bits.c:290:logicalNeg: 5 operators
+ * dlc:bits.c:323:howManyBits: 32 operators
+ * dlc:bits.c:367:floatScale2: 17 operators
+ * dlc:bits.c:412:floatFloat2Int: 18 operators
+ * dlc:bits.c:438:floatPower2: 6 operators
+ *
+ * coder@399cc0ca0454:~/project/5_Practice_ICS/5_Lab/Week4/datalab-handout$ ./btest
+ * Score   Rating  Errors  Function
+ *  1      1       0       bitXor
+ *  1      1       0       tmin
+ *  1      1       0       isTmax
+ *  2      2       0       allOddBits
+ *  2      2       0       negate
+ *  3      3       0       isAsciiDigit
+ *  3      3       0       conditional
+ *  3      3       0       isLessOrEqual
+ *  4      4       0       logicalNeg
+ *  4      4       0       howManyBits
+ *  4      4       0       floatScale2
+ *  4      4       0       floatFloat2Int
+ *  4      4       0       floatPower2
+ * Total points: 36/36
+ */
