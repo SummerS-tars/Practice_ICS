@@ -334,7 +334,36 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned floatScale2(unsigned uf) {
-  return 2;
+  /**
+   * 1 8 23
+   * 1. general case : e plus 1
+   * 2. e = 0 : 
+   *    2.1. general case : (without 1) << 1
+   *    2.2. f = 0 : return uf(can be done by 2.1 too)
+   *    2.3. f << 1 overflow : e = 1, f << 1 and drop the first bit(actually can by done by 2.1 too)
+   * 3. e = 0xFF , f = 0(infinite) : return uf
+   * 4. e = 0xFF , f != 0(NaN) : return uf
+   * 5. e = 0xFF - 1 , f is close full : return infinite
+   */
+  unsigned e = (uf >> 23) & 0xFF ;
+  if(e == 0)
+  {
+    unsigned s = uf & (1 << 31) ; // save the sign bit
+    return (uf << 1) | s ;
+  }
+  else if(e < 0xFF - 1)
+  {
+    return uf + (1 << 23) ;
+  }
+  else if(e == 0xFF - 1)
+  {
+    unsigned s = uf & (1 << 31) ;
+    return s | (0xFF << 23) ;  // return infinity
+  }
+  else 
+  {
+    return uf ;
+  }
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
