@@ -378,7 +378,37 @@ unsigned floatScale2(unsigned uf) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-  return 2;
+  /**
+   * 1 8 23
+   * e = 127 , f = 0 : 1
+   * e = 126 , f = 0 : 0.5
+   * e = 157 , f = 1...1 : 01...1100..0 total 24 1s
+   * 1. e < 126 : return 0
+   * 2. e > 157 , return 0x80000000u
+   * 3. 126 <= e <= 157 : 
+   *    3.0. count s
+   *    3.1. count E = e - 127
+   *    3.2. count M = f + 1 ahead  
+   *    3.3. 1.f << E
+   *      3.3.1. E <= 23 : M >> (23 - E) and drop the last bits
+   *      3.3.2. E > 23 : M << (E - 23)
+   */
+  unsigned e = (uf >> 23) & 0xFF ;
+  if(e < 126) return 0 ;
+  else if(e > 157) return 0x80000000u ;
+  else
+  {
+    unsigned s = uf & (1 << 31) ;
+    unsigned E = e - 127 ;
+    unsigned biasE = E - 23 ;
+    unsigned M = (uf ^ (s | (e << 23))) + (1 << 23) ; // 获取完整小数（带整数部份)
+    unsigned result = 0 ;
+    if(E) result = M << biasE ;
+    else result = M >> (-biasE) ; // 直接抛弃小数部份
+
+    if(s) result = ~result + 1 ;
+    return result ;
+  }
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
