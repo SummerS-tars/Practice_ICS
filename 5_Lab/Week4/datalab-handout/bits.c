@@ -394,7 +394,7 @@ int floatFloat2Int(unsigned uf) {
    *      3.3.2. E > 23 : M << (E - 23)
    */
   unsigned e = (uf >> 23) & 0xFF ;
-  if(e < 126) return 0 ;
+  if(e < 127) return 0 ;
   else if(e > 157) return 0x80000000u ;
   else
   {
