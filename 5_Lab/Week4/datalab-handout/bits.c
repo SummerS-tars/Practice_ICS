@@ -424,5 +424,15 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+    // 1.0 * 2^(x) = 1.0 * 2^(e - 127) * 2^23
+    // smallest : 2^(-126) 
+    // biggest : 2^(127)
+    // x = e - 127  
+    // x min : -126
+    // x max : 127
+    // e min : 1
+    // e max : 254
+    if(x < -126 ) return 0 ;
+    else if( x > -126) return 0xFF << 23 ;
+    else return (x + 127) << 23 ;
 }
