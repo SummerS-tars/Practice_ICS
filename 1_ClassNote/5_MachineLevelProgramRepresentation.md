@@ -7,14 +7,19 @@
     - [1.2. Two Important Abstraction](#12-two-important-abstraction)
         - [1.2.1. Several important concepts](#121-several-important-concepts)
         - [1.2.2. Attention](#122-attention)
-- [Assembly Basics: Registers, operands, move](#assembly-basics-registers-operands-move)
-    - [Registers](#registers)
-    - [Operands](#operands)
-        - [Operands Types](#operands-types)
-    - [Data Format](#data-format)
-    - [Move](#move)
-        - [Operand Combination(操作数组合)](#operand-combination操作数组合)
-        - [Simple Memory Addressing Modes(简单内存寻址模式)](#simple-memory-addressing-modes简单内存寻址模式)
+- [2. Assembly Basics: Registers, operands, move](#2-assembly-basics-registers-operands-move)
+    - [2.1. Registers](#21-registers)
+    - [2.2. Operands](#22-operands)
+        - [2.2.1. Operands Types](#221-operands-types)
+        - [2.2.2. Data Format](#222-data-format)
+        - [2.2.3. Operand Combination(操作数组合)](#223-operand-combination操作数组合)
+        - [2.2.4. Simple Memory Addressing Modes(简单内存寻址模式)](#224-simple-memory-addressing-modes简单内存寻址模式)
+    - [2.3. Move Instruction(移动指令)](#23-move-instruction移动指令)
+        - [Limitation Of Operand Combination(操作数组合的限制)](#limitation-of-operand-combination操作数组合的限制)
+        - [Other Operation of Move Instruction](#other-operation-of-move-instruction)
+        - [Stack Operation(栈操作)](#stack-operation栈操作)
+- [Assembly Upgrade : Condition Code, Jump instructions, Loop Control, Switch](#assembly-upgrade--condition-code-jump-instructions-loop-control-switch)
+    - [Condition Code(条件码)](#condition-code条件码)
 
 ---
 
@@ -141,9 +146,9 @@ mov rbx, rax
 
 ---
 
-## Assembly Basics: Registers, operands, move
+## 2. Assembly Basics: Registers, operands, move
 
-### Registers
+### 2.1. Registers
 
 **Architecture:**  
 
@@ -158,7 +163,7 @@ mov rbx, rax
 
 We mostly pay attention to x86-64 in ICS class  
 
-### Operands
+### 2.2. Operands
 
 In High Level Languages Only two types:  
 
@@ -167,7 +172,7 @@ In High Level Languages Only two types:
 
 For Machine Code?
 
-#### Operands Types
+#### 2.2.1. Operands Types
 
 - **Immediate(立即数)**  
     Constant integer data  
@@ -187,25 +192,50 @@ For Machine Code?
     8 consecutive bytes of memory at address given by register  
     e.g. `(%rax)`  
 
-### Data Format
+#### 2.2.2. Data Format
 
 Use C's declaration as reference:  
 
-|C declaration|Intel Data Type|Assembly Code Suffix|Size(In bytes)|
-|:-:|:-:|:-:|:-:|
-|char|byte|b|1|
-|short|word|w|2|
-|int|doubleword|l|4|
-|long|quadword|q|8|
-|char*|quadword|q|8|
-|float|single precision|s|4|
-|double|double precision|l|8|
+| C declaration | Intel Data Type  | Assembly Code Suffix | Size(In bytes) |
+| :-----------: | :--------------: | :------------------: | :------------: |
+|     char      |       byte       |          b           |       1        |
+|     short     |       word       |          w           |       2        |
+|      int      |    doubleword    |          l           |       4        |
+|     long      |     quadword     |          q           |       8        |
+|     char*     |     quadword     |          q           |       8        |
+|     float     | single precision |          s           |       4        |
+|    double     | double precision |          l           |       8        |
 
 *`char*` represents the pointer in C(for 64bits computer and system)*  
 
-### Move
+#### 2.2.3. Operand Combination(操作数组合)
 
-**basic**(for ATT):  
+| Source (Src) | Destination (Dst) | Src, Dest             | C Analog       |
+| ------------ | ----------------- | --------------------- | -------------- |
+| Imm          | Reg               | `movq $0x123, %rax`   | `temp = 0x123` |
+| Imm          | Mem               | `movq $0x123, (%rax)` | `*p = 0x123`   |
+| Reg          | Reg               | `movq %rax, %rbx`     | `temp = src`   |
+| Reg          | Mem               | `movq %rax, (%rbx)`   | `*p = src`     |
+| Mem          | Reg               | `movq (%rax), %rbx`   | `temp = *p`    |
+
+*Cannot do memory-memory transfer with only a single instruction*  
+
+#### 2.2.4. Simple Memory Addressing Modes(简单内存寻址模式)
+
+| Type  |     Format      |        Operating Value        |     Name     |
+| :---: | :-------------: | :---------------------------: | :----------: |
+|  Imm  |     $\$Imm$     |             $Imm$             |  立即数寻址  |
+|  Reg  |     $\%r_a$     |           $R[r_a]$            |  寄存器寻址  |
+|  Mem  |      $Imm$      |           $M[Imm]$            |   绝对寻址   |
+|  Mem  |     $(r_a)$     |          $M[R[r_a]]$          |   间接寻址   |
+|  Mem  |   $Imm(r_b)$    |       $M[Imm + R[r_b]]$       | 基址偏移寻址 |
+|  Mem  | $(r_b, r_i, s)$ | $M[R[r_b] + R[r_i] \times s]$ | 比例变址寻址 |
+
+*s must be 1, 2, 4 or 8 !!!*  
+
+### 2.3. Move Instruction(移动指令)
+
+**basic format**(for ATT):  
 
 ```assembly
 movq Src, Dst
@@ -214,16 +244,39 @@ movq Src, Dst
 - `Src`: source operand
 - `Dst`: destination operand
 
-#### Operand Combination(操作数组合)
+#### Limitation Of Operand Combination(操作数组合的限制)  
 
-| Source (Src) | Destination (Dst) | Src, Dest                          |C Analog|
-|--------------|--------------------|----------------------------------|--------|
-| Imm          | Reg                | `movq $0x123, %rax`              | `temp = 0x123` |
-| Imm          | Mem                | `movq $0x123, (%rax)`            | `*p = 0x123` |
-| Reg          | Reg                | `movq %rax, %rbx`                | `temp = src` |
-| Reg          | Mem                | `movq %rax, (%rbx)`              | `*p = src` |
-| Mem          | Reg                | `movq (%rax), %rbx`              | `temp = *p` |
+Easy to understand we can move to `Imm`  
+And the other limitation is that `Mem` to `Mem` is not allowed  
 
-*Cannot do memory-memory transfer with only a single instruction*  
+#### Other Operation of Move Instruction
 
-#### Simple Memory Addressing Modes(简单内存寻址模式)
+
+
+#### Stack Operation(栈操作)
+
+**Stack: a special kind of data structure**  
+here what we talk about is in programming  
+related important concepts:  
+
+1. top  
+    the top of the stack must be explicitly specified  
+    (we are used to think the top increases from up to down)  
+2. push  
+    add element to the top of the stack  
+3. pop  
+    remove element from the top of the stack
+4. LIFO(Last In First Out)  
+    the last element added to the stack is the first one to be removed  
+
+And the stack we mentioned here is a hardware stack in x86(硬件实现)  
+
+## Assembly Upgrade : Condition Code, Jump instructions, Loop Control, Switch
+
+### Condition Code(条件码)
+
+What we talk about above is almost linear code movement  
+However, the situation where the program needs to make a decision for running sequence by data test's result is very common  
+
+And **Condition Code** is designed for this purpose  
+Condition code provides two basic low-level 机制
