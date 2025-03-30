@@ -20,6 +20,8 @@
         - [Stack Operation(栈操作)](#stack-operation栈操作)
 - [Assembly Upgrade : Condition Code, Jump instructions, Loop Control, Switch](#assembly-upgrade--condition-code-jump-instructions-loop-control-switch)
     - [Condition Code(条件码)](#condition-code条件码)
+        - [Operand Combination(操作数组合)](#operand-combination操作数组合)
+        - [Simple Memory Addressing Modes(简单内存寻址模式)](#simple-memory-addressing-modes简单内存寻址模式)
 
 ---
 
@@ -280,3 +282,16 @@ However, the situation where the program needs to make a decision for running se
 
 And **Condition Code** is designed for this purpose  
 Condition code provides two basic low-level 机制
+ #### Operand Combination(操作数组合)
+
+| Source (Src) | Destination (Dst) | Src, Dest                          |C Analog|
+|--------------|--------------------|----------------------------------|--------|
+| Imm          | Reg                | `movq $0x123, %rax`              | `temp = 0x123` |
+| Imm          | Mem                | `movq $0x123, (%rax)`            | `*p = 0x123` |
+| Reg          | Reg                | `movq %rax, %rbx`                | `temp = src` |
+| Reg          | Mem                | `movq %rax, (%rbx)`              | `*p = src` |
+| Mem          | Reg                | `movq (%rax), %rbx`              | `temp = *p` |
+
+*Cannot do memory-memory transfer with only a single instruction*  
+
+#### Simple Memory Addressing Modes(简单内存寻址模式)
