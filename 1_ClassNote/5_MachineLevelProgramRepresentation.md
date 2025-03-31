@@ -16,7 +16,7 @@
         - [2.2.4. Simple Memory Addressing Modes(简单内存寻址模式)](#224-simple-memory-addressing-modes简单内存寻址模式)
     - [2.3. Move Instruction(移动指令)](#23-move-instruction移动指令)
         - [Limitation Of Operand Combination(操作数组合的限制)](#limitation-of-operand-combination操作数组合的限制)
-        - [Other Operation of Move Instruction](#other-operation-of-move-instruction)
+        - [MOV, MOVZ, MOVS类](#mov-movz-movs类)
         - [Stack Operation(栈操作)](#stack-operation栈操作)
 - [Assembly Upgrade : Condition Code, Jump instructions, Loop Control, Switch](#assembly-upgrade--condition-code-jump-instructions-loop-control-switch)
     - [Condition Code(条件码)](#condition-code条件码)
@@ -249,7 +249,7 @@ movq Src, Dst
 Easy to understand we can move to `Imm`  
 And the other limitation is that `Mem` to `Mem` is not allowed  
 
-#### Other Operation of Move Instruction
+#### MOV, MOVZ, MOVS类
 
 
 
