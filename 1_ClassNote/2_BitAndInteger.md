@@ -13,14 +13,14 @@ after [Class 1 Note](./1_Introduction.md)
 
 **types for C and Bytes for systems**  
 
-|type|32-bits system|64-bits system|
-|:---:|:---:|:---:|
-|char|1|1|
-|short|2|2|
-|int|4|4|
-|long|4|8|
-|long long|8|8|
-|pointer|4|8|
+|   type    | 32-bits system | 64-bits system |
+| :-------: | :------------: | :------------: |
+|   char    |       1        |       1        |
+|   short   |       2        |       2        |
+|    int    |       4        |       4        |
+|   long    |       4        |       8        |
+| long long |       8        |       8        |
+|  pointer  |       4        |       8        |
 
 **attention:**  
 What is the `bits` above ?  

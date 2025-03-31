@@ -14,12 +14,19 @@
         - [2.2.2. Data Format](#222-data-format)
         - [2.2.3. Operand Combination(操作数组合)](#223-operand-combination操作数组合)
         - [2.2.4. Simple Memory Addressing Modes(简单内存寻址模式)](#224-simple-memory-addressing-modes简单内存寻址模式)
-    - [2.3. Move Instruction(移动指令)](#23-move-instruction移动指令)
-        - [Limitation Of Operand Combination(操作数组合的限制)](#limitation-of-operand-combination操作数组合的限制)
+    - [2.3. Instruction About Data Movement(数据移动指令)](#23-instruction-about-data-movement数据移动指令)
         - [MOV, MOVZ, MOVS类](#mov-movz-movs类)
+        - [Limitation Of Operand Combination(操作数组合的限制)](#limitation-of-operand-combination操作数组合的限制)
         - [Stack Operation(栈操作)](#stack-operation栈操作)
-- [Assembly Upgrade : Condition Code, Jump instructions, Loop Control, Switch](#assembly-upgrade--condition-code-jump-instructions-loop-control-switch)
+    - [Arithmetic and Logical Instructions(算术和逻辑指令)](#arithmetic-and-logical-instructions算术和逻辑指令)
+        - [Load Effective Address(LEA)](#load-effective-addresslea)
+        - [Unary adn Binary Operations](#unary-adn-binary-operations)
+        - [Shift Operations](#shift-operations)
+        - [Special Arithmetic Operations](#special-arithmetic-operations)
+- [Assembly Upgrade : `Control` Condition Code, Jump instructions, Loop Control, Switch](#assembly-upgrade--control-condition-code-jump-instructions-loop-control-switch)
+    - [Several Important Registers](#several-important-registers)
     - [Condition Code(条件码)](#condition-code条件码)
+        - [Access condition code](#access-condition-code)
 
 ---
 
@@ -233,7 +240,9 @@ Use C's declaration as reference:
 
 *s must be 1, 2, 4 or 8 !!!*  
 
-### 2.3. Move Instruction(移动指令)
+### 2.3. Instruction About Data Movement(数据移动指令)
+
+#### MOV, MOVZ, MOVS类
 
 **basic format**(for ATT):  
 
@@ -248,10 +257,6 @@ movq Src, Dst
 
 Easy to understand we can move to `Imm`  
 And the other limitation is that `Mem` to `Mem` is not allowed  
-
-#### MOV, MOVZ, MOVS类
-
-
 
 #### Stack Operation(栈操作)
 
@@ -271,12 +276,40 @@ related important concepts:
 
 And the stack we mentioned here is a hardware stack in x86(硬件实现)  
 
-## Assembly Upgrade : Condition Code, Jump instructions, Loop Control, Switch
+### Arithmetic and Logical Instructions(算术和逻辑指令)
 
-### Condition Code(条件码)
+#### Load Effective Address(LEA)
+
+#### Unary adn Binary Operations
+
+#### Shift Operations
+
+#### Special Arithmetic Operations
+
+## Assembly Upgrade : `Control` Condition Code, Jump instructions, Loop Control, Switch
 
 What we talk about above is almost linear code movement  
 However, the situation where the program needs to make a decision for running sequence by data test's result is very common  
+And then we talk about these in machine code  
 
-And **Condition Code** is designed for this purpose  
-Condition code provides two basic low-level 机制
+### Several Important Registers
+
+- `%rax` : Temporary data(many return values and intermediate values stored here)  
+- `%rsp` : Pointer to the top of the stack(栈顶指针)  
+    *Stack Pointer*  
+- `%rip` : Location of current code control point  
+    *Instruction Pointer*  
+
+### Condition Code(条件码)
+
+Except for the Integer registers  
+CPU also maintains a group of special single-bit **condition code registers(条件码寄存器)**  
+
+**Several Mostly Used Condition Code**:  
+
+- **CF(carry flag)** 进位标志  
+- **ZF(zero flag)**  零标志  
+- **SF(sign flag)**  符号标志  
+- **OF(overflow flag)** 溢出标志  
+
+#### Access condition code
