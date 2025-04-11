@@ -1,5 +1,5 @@
 *.exe
 *.dSYM/
-
+settings.json
 
 .DS_Store
