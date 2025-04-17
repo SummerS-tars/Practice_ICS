@@ -1,5 +1,7 @@
 *.exe
 *.dSYM/
+^
+*.zip
 settings.json
 
 .DS_Store
