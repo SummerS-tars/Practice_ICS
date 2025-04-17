@@ -2,6 +2,8 @@
 *.dSYM/
 ^
 *.zip
+*.tar
+*.tar.gz
 settings.json
 
 .DS_Store
