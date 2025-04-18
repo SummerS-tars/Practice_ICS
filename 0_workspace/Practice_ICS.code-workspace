@@ -6,8 +6,11 @@
 	],
 	"settings": {
 		"cSpell.words": [
+			"cmpl",
 			"CSAPP",
 			"killall",
+			"movl",
+			"movq",
 			"nohup",
 			"pkill",
 			"Termius",

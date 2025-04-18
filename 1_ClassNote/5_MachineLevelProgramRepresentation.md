@@ -9,24 +9,26 @@
         - [1.2.2. Attention](#122-attention)
 - [2. Assembly Basics: Registers, operands, move](#2-assembly-basics-registers-operands-move)
     - [2.1. Registers](#21-registers)
+        - [Addition About x86-64 Registers](#addition-about-x86-64-registers)
     - [2.2. Operands](#22-operands)
         - [2.2.1. Operands Types](#221-operands-types)
         - [2.2.2. Data Format](#222-data-format)
         - [2.2.3. Operand Combination(操作数组合)](#223-operand-combination操作数组合)
         - [2.2.4. Simple Memory Addressing Modes(简单内存寻址模式)](#224-simple-memory-addressing-modes简单内存寻址模式)
     - [2.3. Instruction About Data Movement(数据移动指令)](#23-instruction-about-data-movement数据移动指令)
-        - [MOV, MOVZ, MOVS类](#mov-movz-movs类)
-        - [Limitation Of Operand Combination(操作数组合的限制)](#limitation-of-operand-combination操作数组合的限制)
-        - [Stack Operation(栈操作)](#stack-operation栈操作)
-    - [Arithmetic and Logical Instructions(算术和逻辑指令)](#arithmetic-and-logical-instructions算术和逻辑指令)
-        - [Load Effective Address(LEA)](#load-effective-addresslea)
-        - [Unary adn Binary Operations](#unary-adn-binary-operations)
-        - [Shift Operations](#shift-operations)
-        - [Special Arithmetic Operations](#special-arithmetic-operations)
-- [Assembly Upgrade : `Control` Condition Code, Jump instructions, Loop Control, Switch](#assembly-upgrade--control-condition-code-jump-instructions-loop-control-switch)
-    - [Several Important Registers](#several-important-registers)
-    - [Condition Code(条件码)](#condition-code条件码)
-        - [Access condition code](#access-condition-code)
+        - [2.3.1. MOV, MOVZ, MOVS类](#231-mov-movz-movs类)
+        - [2.3.2. Limitation Of Operand Combination(操作数组合的限制)](#232-limitation-of-operand-combination操作数组合的限制)
+        - [2.3.3. Stack Operation(栈操作)](#233-stack-operation栈操作)
+    - [2.4. Arithmetic and Logical Instructions(算术和逻辑指令)](#24-arithmetic-and-logical-instructions算术和逻辑指令)
+        - [2.4.1. Load Effective Address(LEA)](#241-load-effective-addresslea)
+        - [2.4.2. Unary adn Binary Operations](#242-unary-adn-binary-operations)
+        - [2.4.4. Special Arithmetic Operations](#244-special-arithmetic-operations)
+- [3. Assembly Upgrade : `Control` Condition Code, Jump instructions, Loop Control, Switch](#3-assembly-upgrade--control-condition-code-jump-instructions-loop-control-switch)
+    - [3.1. Several Important Registers](#31-several-important-registers)
+    - [3.2. Condition Code(条件码)](#32-condition-code条件码)
+        - [3.2.1. Access condition code](#321-access-condition-code)
+            - [Set by Condition](#set-by-condition)
+        - [Jump Instructions](#jump-instructions)
 
 ---
 
@@ -170,6 +172,22 @@ mov rbx, rax
 
 We mostly pay attention to x86-64 in ICS class  
 
+#### Addition About x86-64 Registers
+
+- ax: accumulator register  
+    in fact: AH&AH --> AX  
+    AH: high byte of AX  
+    AL: low byte of AX  
+    bx, cx, dx are just the same format  
+- bx: base register
+- cx: counter register
+- dx: data register
+- si: source index register
+- di: destination index register
+- sp: stack pointer register
+- bp: base pointer register
+- r8-r15: additional registers  
+
 ### 2.2. Operands
 
 In High Level Languages Only two types:  
@@ -242,7 +260,7 @@ Use C's declaration as reference:
 
 ### 2.3. Instruction About Data Movement(数据移动指令)
 
-#### MOV, MOVZ, MOVS类
+#### 2.3.1. MOV, MOVZ, MOVS类
 
 **basic format**(for ATT):  
 
@@ -253,12 +271,12 @@ movq Src, Dst
 - `Src`: source operand
 - `Dst`: destination operand
 
-#### Limitation Of Operand Combination(操作数组合的限制)  
+#### 2.3.2. Limitation Of Operand Combination(操作数组合的限制)  
 
 Easy to understand we can move to `Imm`  
 And the other limitation is that `Mem` to `Mem` is not allowed  
 
-#### Stack Operation(栈操作)
+#### 2.3.3. Stack Operation(栈操作)
 
 **Stack: a special kind of data structure**  
 here what we talk about is in programming  
@@ -269,30 +287,102 @@ related important concepts:
     (we are used to think the top increases from up to down)  
 2. push  
     add element to the top of the stack  
+
+    ```assembly
+    pushq S
+    ```
+
+    `S` means the source operand  
 3. pop  
     remove element from the top of the stack
+
+    ```assembly
+    popq D
+    ```
+
+    `D` means the destination operand
 4. LIFO(Last In First Out)  
     the last element added to the stack is the first one to be removed  
 
 And the stack we mentioned here is a hardware stack in x86(硬件实现)  
 
-### Arithmetic and Logical Instructions(算术和逻辑指令)
+### 2.4. Arithmetic and Logical Instructions(算术和逻辑指令)
 
-#### Load Effective Address(LEA)
+#### 2.4.1. Load Effective Address(LEA)
 
-#### Unary adn Binary Operations
+**LEA**: Load Effective Address(加载有效地址)  
+calculate address and only about address  
 
-#### Shift Operations
+format:  
 
-#### Special Arithmetic Operations
+```assembly
+lea src, dest
+```
 
-## Assembly Upgrade : `Control` Condition Code, Jump instructions, Loop Control, Switch
+its src will be treated as a memory address  
+*no matter it is or not actually!*  
+
+it can use [simple memory addressing modes](#224-simple-memory-addressing-modes简单内存寻址模式)  
+we should note that it is not meaning accessing the memory  
+bug just calculate the "address"  
+
+#### 2.4.2. Unary adn Binary Operations
+
+**Binary Operations:**  
+
+1. add  
+2. sub  
+3. imul  
+    imul: integer multiplication  
+    integer means both positive and negative are included  
+    in other word, it's multiplication of signed integer  
+4. xor  
+5. and  
+6. or  
+7. shl  
+    shl: shift (logic) left  
+    logic is omitted  
+8. shr  
+9. sal  
+    sal: shift arithmetic left  
+    alisa: shl  
+10. sar  
+    will use the sign bit to fill the empty bits in the left  
+
+common format:  
+
+```assembly
+operation src, dest
+```
+
+this means:  
+do operation between `src` and `dest`  
+store the result in `dest`  
+
+**Unary Operations:**  
+
+1. inc  
+    similar to `++`  
+2. dec  
+    similar to `--`  
+3. neg
+4. not
+
+common format:  
+
+```assembly
+operation dest
+```
+
+#### 2.4.4. Special Arithmetic Operations
+
+## 3. Assembly Upgrade : `Control` Condition Code, Jump instructions, Loop Control, Switch
 
 What we talk about above is almost linear code movement  
 However, the situation where the program needs to make a decision for running sequence by data test's result is very common  
 And then we talk about these in machine code  
 
-### Several Important Registers
+### 3.1. Several Important Registers
 
 - `%rax` : Temporary data(many return values and intermediate values stored here)  
 - `%rsp` : Pointer to the top of the stack(栈顶指针)  
@@ -300,7 +390,7 @@ And then we talk about these in machine code
 - `%rip` : Location of current code control point  
     *Instruction Pointer*  
 
-### Condition Code(条件码)
+### 3.2. Condition Code(条件码)
 
 Except for the Integer registers  
 CPU also maintains a group of special single-bit **condition code registers(条件码寄存器)**  
@@ -312,4 +402,50 @@ CPU also maintains a group of special single-bit **condition code registers(条�
 - **SF(sign flag)**  符号标志  
 - **OF(overflow flag)** 溢出标志  
 
-#### Access condition code
+#### 3.2.1. Access condition code
+
+condition codes are usually not be accessed directly  
+
+there are three common ways to use them:  
+
+1. use specific combination of condition codes to set one byte to 0 or 1  
+2. use condition codes to jump to somewhere in the program  
+3. pass the data with condition codes  
+
+##### Set by Condition
+
+SET instructions:  
+
+1. `sete`  
+    equal  
+    same with `setz`
+2. `setne`  
+    not equal  
+    same with `setnz`  
+3. `sets`  
+    sign  
+4. `setns`  
+5. `setg`  
+    greater (for signed integer)  
+    same with `setnle`  
+6. `setge`  
+    greater or equal  
+    the rest are similar to this  
+7. setl  
+    less  
+8. setle  
+9. seta  
+    above (for unsigned integer)  
+10. setae  
+11. setb  
+    below (for unsigned integer)  
+12. setbe  
+
+format:  
+
+```asm
+SET Dest
+```
+
+#### Jump Instructions
+
