@@ -40,7 +40,10 @@
             - [`while` Loop](#while-loop)
             - [`for` Loop](#for-loop)
         - [`switch` Sentence](#switch-sentence)
-        - [](#)
+    - [Process(过程)](#process过程)
+        - [Runtime Stack(运行时栈)](#runtime-stack运行时栈)
+            - [Stack Frame](#stack-frame)
+        - [Transfer Control(转移控制)](#transfer-control转移控制)
 
 ---
 
@@ -594,4 +597,60 @@ and the second coding method is to provide the absolute address
 
 important concept: **jump table**  
 
-####
+### Process(过程)
+
+**Process** is a very important kind of abstract software  
+it provides a way to encapsulate(封装) the code  
+just leaves some specific interface(params) and a optional return value  
+
+A well designed program should make good use of processes  
+hides the implementation details  
+while providing a clear interface  
+that is to say  
+make it easy to understand what are needed to use the processes and what they will do  
+
+it may have different forms in different programming languages  
+like `function`, `method`, `subroutine`, and so on  
+
+firstly,
+here we care about here is the shared characteristics of them  
+
+to implement the concept of process in machine level  
+here are some important attributes to handle:  
+
+1. **transfer control**(传递控制)  
+2. **transfer data**(传递数据)  
+3. **assign and free memory**(分配和释放内存)  
+
+here we will talk about these mechanisms one by one  
+
+#### Runtime Stack(运行时栈)
+
+Stack structure provides the LIFO principle of memory management  
+witch plays a crucial role in the invocation of processes  
+*(actually in many other language, it is the same)*  
+
+stack grows from high address to low address  
+when Process `P` invokes Process `Q`  
+`P` and all the process in the invoking chain will be suspended(挂起)  
+*(we can just regard this as we don't pay attention to these temporary)*  
+and we just need to pay attention to the process `Q` right now  
+it can allocate new spaces for local variables or another processes  
+when we finished `Q`, we can just releases the space of it and return to `P`  
+
+and we can stare in the stack to find what it is doing right now  
+just as what we have mentioned ([here](#233-stack-operation栈操作))  
+we just to move the pointer to the top of the stack to manage the stack  
+more clearly, we can say:  
+we sub specific value from `%rsp` to allocate space for the process  
+and add specific value to `%rsp` to free the space  
+
+##### Stack Frame
+
+after this, we should know another important concept:  
+**stack frame**(栈帧)  
+
+#### Transfer Control(转移控制)
+
+when the program transfers control  
+what it actually do is to set PC(程序计数器)  
