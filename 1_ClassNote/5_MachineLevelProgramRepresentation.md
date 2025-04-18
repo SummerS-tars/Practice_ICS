@@ -9,7 +9,7 @@
         - [1.2.2. Attention](#122-attention)
 - [2. Assembly Basics: Registers, operands, move](#2-assembly-basics-registers-operands-move)
     - [2.1. Registers](#21-registers)
-        - [Addition About x86-64 Registers](#addition-about-x86-64-registers)
+        - [2.1.1. Addition About x86-64 Registers](#211-addition-about-x86-64-registers)
     - [2.2. Operands](#22-operands)
         - [2.2.1. Operands Types](#221-operands-types)
         - [2.2.2. Data Format](#222-data-format)
@@ -22,13 +22,25 @@
     - [2.4. Arithmetic and Logical Instructions(算术和逻辑指令)](#24-arithmetic-and-logical-instructions算术和逻辑指令)
         - [2.4.1. Load Effective Address(LEA)](#241-load-effective-addresslea)
         - [2.4.2. Unary adn Binary Operations](#242-unary-adn-binary-operations)
-        - [2.4.4. Special Arithmetic Operations](#244-special-arithmetic-operations)
+        - [2.4.3. Special Arithmetic Operations](#243-special-arithmetic-operations)
 - [3. Assembly Upgrade : `Control` Condition Code, Jump instructions, Loop Control, Switch](#3-assembly-upgrade--control-condition-code-jump-instructions-loop-control-switch)
     - [3.1. Several Important Registers](#31-several-important-registers)
     - [3.2. Condition Code(条件码)](#32-condition-code条件码)
-        - [3.2.1. Access condition code](#321-access-condition-code)
-            - [Set by Condition](#set-by-condition)
-        - [Jump Instructions](#jump-instructions)
+        - [3.2.1. Set Condition Codes](#321-set-condition-codes)
+        - [3.2.2. Access condition code](#322-access-condition-code)
+            - [3.2.2.1. Set by Condition](#3221-set-by-condition)
+        - [3.2.3. Jump Instructions](#323-jump-instructions)
+            - [Unconditional Jump](#unconditional-jump)
+            - [Conditional Jump](#conditional-jump)
+        - [Coding of Jump Instructions](#coding-of-jump-instructions)
+        - [Condition Branches Realized by Jump Instructions](#condition-branches-realized-by-jump-instructions)
+        - [Condition Branched Realized by Condition Transmission](#condition-branched-realized-by-condition-transmission)
+        - [Loop](#loop)
+            - [`do-while` Loop](#do-while-loop)
+            - [`while` Loop](#while-loop)
+            - [`for` Loop](#for-loop)
+        - [`switch` Sentence](#switch-sentence)
+        - [](#)
 
 ---
 
@@ -172,7 +184,7 @@ mov rbx, rax
 
 We mostly pay attention to x86-64 in ICS class  
 
-#### Addition About x86-64 Registers
+#### 2.1.1. Addition About x86-64 Registers
 
 - ax: accumulator register  
     in fact: AH&AH --> AX  
@@ -374,7 +386,7 @@ common format:
 operation dest
 ```
 
-#### 2.4.4. Special Arithmetic Operations
+#### 2.4.3. Special Arithmetic Operations
 
 ## 3. Assembly Upgrade : `Control` Condition Code, Jump instructions, Loop Control, Switch
 
@@ -389,6 +401,7 @@ And then we talk about these in machine code
     *Stack Pointer*  
 - `%rip` : Location of current code control point  
     *Instruction Pointer*  
+    *Attention: this register is not included in the 16 registers*  
 
 ### 3.2. Condition Code(条件码)
 
@@ -402,7 +415,53 @@ CPU also maintains a group of special single-bit **condition code registers(条�
 - **SF(sign flag)**  符号标志  
 - **OF(overflow flag)** 溢出标志  
 
-#### 3.2.1. Access condition code
+#### 3.2.1. Set Condition Codes
+
+All the Arithmetic and Logical Instructions except LEA will set the condition codes  
+(LEA just calculate the address)  
+above these instructions implicitly set condition codes  
+
+besides, two types of instructions will explicitly set condition codes:  
+
+1. CMP  
+2. TEST  
+
+format:  
+
+```asm
+cmpq src1, src2
+
+testq src1, src2
+```
+
+instruction CMP set the condition codes  
+based on the result of `src2 - src1`  
+
+and TEST set the condition codes  
+based on the result of `src1 & src2`  
+
+**Attention:**  
+
+the sequence of the two source operands in CMP is different from what we are used to  
+it reverses the two operands  
+for example:  
+
+if we want to express `a < b`  
+normally we use `cmpq a, b`  
+but if we use `setl` to set the condition codes  
+you will get actually the result of `b < a`  
+*because of the basic principle of access and using condition codes*
+
+so if we want to directly use the `l` or `g` or `a` or `b` mentioned below  
+we should reverse the two operands here  
+
+**Addition:**  
+
+TEST usually uses the same `src`  
+in this situation, only `src` is 0, the ZF will be set to 1  
+so we can judge whether the `src` is 0 or not  
+
+#### 3.2.2. Access condition code
 
 condition codes are usually not be accessed directly  
 
@@ -412,7 +471,7 @@ there are three common ways to use them:
 2. use condition codes to jump to somewhere in the program  
 3. pass the data with condition codes  
 
-##### Set by Condition
+##### 3.2.2.1. Set by Condition
 
 SET instructions:  
 
@@ -447,5 +506,92 @@ format:
 SET Dest
 ```
 
-#### Jump Instructions
+P.S.  
+Above in [Set Condition Codes](#321-set-condition-codes)  
+we mentioned the sequence of the two source operands is different from what we are used to  
+this is actually because of the actually way of using combination of condition codes  
 
+| instruction | actual effect     |
+| ----------- | ----------------- |
+| sete        | D : ZF            |
+| setne       | D : \~ZF          |
+| sets        | D : SF            |
+| setns       | D : \~SF          |
+| setg        | D : \~(SF^OF)&~ZF |
+| setge       | D : \~(SF^OF)     |
+| setl        | D : SF^OF         |
+| setle       | D : (SF^OF)\|ZF   |
+| seta        | D : \~CF&\~ZF     |
+| setae       | D : ~CF           |
+| setb        | D : CF            |
+| setbe       | D : CF\|ZF        |
+
+#### 3.2.3. Jump Instructions
+
+**jump** is used to change the executing process to a new position in the program  
+
+**jump** instructions are so important  
+that almost all the control will use them  
+like `if-else`, `switch`, all the loop structures and so on  
+
+as for wether condition is used  
+there are two types of jump instructions  
+
+1. unconditional  
+2. conditional  
+
+##### Unconditional Jump
+
+its `jmp`  
+
+1. directly jump  
+    asm code will use `label` to denote the dest to jump to  
+    usually belike: `.L1`  
+
+    ```asm
+    jmp Label
+    ```
+
+    means the process will jump to the position of `Label` to keep on the following instructions  
+
+2. indirectly jump  
+
+    ```asm
+    jmp *Operand
+    ```
+
+    what operand is is what we know before  
+
+##### Conditional Jump
+
+conditional jump only allows jump to specific label  
+
+the way we choose the condition is just the same with SET instructions  
+
+#### Coding of Jump Instructions
+
+this is what we should actually pay attention to  
+
+actually, there are several ways to code jump instruction  
+the mostly used one is PC-relative(PC相对的)  
+that is to say, use the difference between dest instruction address and the following instruction address after jump instruction  
+
+and the second coding method is to provide the absolute address  
+
+#### Condition Branches Realized by Jump Instructions
+
+#### Condition Branched Realized by Condition Transmission
+
+#### Loop
+
+##### `do-while` Loop
+
+##### `while` Loop
+
+##### `for` Loop
+
+#### `switch` Sentence
+
+important concept: **jump table**  
+
+####

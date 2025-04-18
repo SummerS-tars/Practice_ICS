@@ -13,6 +13,9 @@
 			"movq",
 			"nohup",
 			"pkill",
+			"sete",
+			"setne",
+			"setns",
 			"Termius",
 			"updatedb"
 		],
@@ -80,6 +83,9 @@
 			"limits.h": "c",
 			"syslimits.h": "c",
 			"stdlib.h": "c"
+		},
+		"cSpell.enabledFileTypes": {
+			"asm-collection": false
 		}
 	},
 }
