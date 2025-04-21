@@ -104,12 +104,8 @@ Addition:
 |s(ign)|1|1|
 |exp(onent)|8|11|
 |frac(tion)|23|52|
-properties
----
 
 ## Rounding, Addition, Multiplication
-
-
 
 ## Floating Point in C
 
