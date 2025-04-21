@@ -58,13 +58,16 @@
         - [3.4.5. Variable-Size Array(变长数组)](#345-variable-size-array变长数组)
     - [3.5. Heterogeneous Data Structures(异质的数据结构)](#35-heterogeneous-data-structures异质的数据结构)
         - [3.5.1. Struct](#351-struct)
-            - [Accessing Members in Struct](#accessing-members-in-struct)
+            - [3.5.1.1. Accessing Members in Struct](#3511-accessing-members-in-struct)
         - [3.5.2. Union](#352-union)
         - [3.5.3. Data Alignment(数据对齐)](#353-data-alignment数据对齐)
-    - [Combine the Data and Control in Machine-Level Program](#combine-the-data-and-control-in-machine-level-program)
-        - [Understand Pointer](#understand-pointer)
-        - [Introduction to the Usage of GDB](#introduction-to-the-usage-of-gdb)
-        - [Out-of-Bounds Memory References and Buffer Overflow(内存越界引用和缓冲区溢出)](#out-of-bounds-memory-references-and-buffer-overflow内存越界引用和缓冲区溢出)
+    - [3.6. Combine the Data and Control in Machine-Level Program](#36-combine-the-data-and-control-in-machine-level-program)
+        - [3.6.1. Understand Pointer](#361-understand-pointer)
+        - [3.6.2. Introduction to the Usage of GDB](#362-introduction-to-the-usage-of-gdb)
+        - [3.6.3. Out-of-Bounds Memory References and Buffer Overflow(内存越界引用和缓冲区溢出)](#363-out-of-bounds-memory-references-and-buffer-overflow内存越界引用和缓冲区溢出)
+            - [3.6.3.1. x86-64 Linux Memory Layout](#3631-x86-64-linux-memory-layout)
+            - [3.6.3.2. How to Avoid?](#3632-how-to-avoid)
+            - [3.6.3.3. Return-Oriented Programming(ROP) Attacks](#3633-return-oriented-programmingrop-attacks)
 
 ---
 
@@ -921,7 +924,7 @@ in one structure(for example `s`)
 all the components are put in a continuous space in memory  
 the pointer to the `s` is pointing to the first byte of `s`  
 
-##### Accessing Members in Struct
+##### 3.5.1.1. Accessing Members in Struct
 
 compiler will maintain every type of the `struct`  
 remember the bias bytes of every component(`filed`)  
@@ -1046,7 +1049,7 @@ yes, we can find that `j` dose not start from 5 but actually from 8
 it's because the compiler insert some empty after `c` to make sure `j` starts from the multiple of 4  
 *besides, the start address of `s` must be the multiple of 4 at first*  
 
-### Combine the Data and Control in Machine-Level Program
+### 3.6. Combine the Data and Control in Machine-Level Program
 
 right now, we have talked about two parts:  
 
@@ -1056,9 +1059,38 @@ right now, we have talked about two parts:
 in this section, we'll try to figure out  
 how data and control interact  
 
-#### Understand Pointer
+#### 3.6.1. Understand Pointer
 
-#### Introduction to the Usage of GDB
+#### 3.6.2. Introduction to the Usage of GDB
 
-#### Out-of-Bounds Memory References and Buffer Overflow(内存越界引用和缓冲区溢出)
+#### 3.6.3. Out-of-Bounds Memory References and Buffer Overflow(内存越界引用和缓冲区溢出)
 
+##### 3.6.3.1. x86-64 Linux Memory Layout
+
+- Stack  
+- Shared Libraries  
+- Heap  
+- Data  
+- Text
+
+**Attention:**  
+although the stack grows from up to down  
+the content in it is listed from lower address to higher address(in each frame)  
+*that is to say, element in array listed from stack top to bottom, components in struct is the same*  
+
+##### 3.6.3.2. How to Avoid?
+
+1. Code level: using safe library functions  
+
+2. System-level protections:  
+    - randomized stack offsets  
+    - ASLR  
+    - Nonexecutable code segments  
+        - stack marked as nonexecutable  
+
+3. Stack canaries(栈金丝雀)  
+    - a random value is inserted into the stack frame of the function  
+    - when the function returns, the value is checked  
+    - if it is changed, the program will be terminated  
+
+##### 3.6.3.3. Return-Oriented Programming(ROP) Attacks
