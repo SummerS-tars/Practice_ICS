@@ -48,7 +48,7 @@ Disassembly of section .text:
     106e:	54                   	push   %rsp
     106f:	45 31 c0             	xor    %r8d,%r8d
     1072:	31 c9                	xor    %ecx,%ecx
-    1074:	48 8d 3d 35 01 00 00 	lea    0x135(%rip),%rdi        # 11b0 <main>
+    1074:	48 8d 3d 2d 01 00 00 	lea    0x12d(%rip),%rdi        # 11a8 <main>
     107b:	ff 15 3f 2f 00 00    	call   *0x2f3f(%rip)        # 3fc0 <__libc_start_main@GLIBC_2.34>
     1081:	f4                   	hlt
     1082:	66 2e 0f 1f 84 00 00 	cs nopw 0x0(%rax,%rax,1)
@@ -115,7 +115,7 @@ Disassembly of section .text:
     114d:	48 83 ec 20          	sub    $0x20,%rsp
     1151:	48 89 7d e8          	mov    %rdi,-0x18(%rbp)
     1155:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
-    1159:	48 89 45 f8          	mov    %rax,-0x8(%rbp)  # char *s stores -0x8(%rbp)
+    1159:	48 89 45 f8          	mov    %rax,-0x8(%rbp)
     115d:	eb 11                	jmp    1170 <gets+0x27>
     115f:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
     1163:	48 8d 50 01          	lea    0x1(%rax),%rdx
@@ -134,32 +134,30 @@ Disassembly of section .text:
     118e:	48 3b 45 e8          	cmp    -0x18(%rbp),%rax
     1192:	75 07                	jne    119b <gets+0x52>
     1194:	b8 00 00 00 00       	mov    $0x0,%eax
-    1199:	eb 13                	jmp    11ae <gets+0x65>
+    1199:	eb 0b                	jmp    11a6 <gets+0x5d>
     119b:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
-    119f:	48 8d 50 01          	lea    0x1(%rax),%rdx
-    11a3:	48 89 55 f8          	mov    %rdx,-0x8(%rbp)
-    11a7:	c6 00 00             	movb   $0x0,(%rax)
-    11aa:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
-    11ae:	c9                   	leave
-    11af:	c3                   	ret
+    119f:	c6 00 00             	movb   $0x0,(%rax)
+    11a2:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
+    11a6:	c9                   	leave
+    11a7:	c3                   	ret
 
-00000000000011b0 <main>:
-    11b0:	55                   	push   %rbp
-    11b1:	48 89 e5             	mov    %rsp,%rbp
-    11b4:	48 83 ec 10          	sub    $0x10,%rsp
-    11b8:	48 8d 45 f8          	lea    -0x8(%rbp),%rax
-    11bc:	48 89 c7             	mov    %rax,%rdi
-    11bf:	e8 85 ff ff ff       	call   1149 <gets>
-    11c4:	48 8d 45 f8          	lea    -0x8(%rbp),%rax
-    11c8:	48 89 c7             	mov    %rax,%rdi
-    11cb:	e8 60 fe ff ff       	call   1030 <puts@plt>
-    11d0:	b8 00 00 00 00       	mov    $0x0,%eax
-    11d5:	c9                   	leave
-    11d6:	c3                   	ret
+00000000000011a8 <main>:
+    11a8:	55                   	push   %rbp
+    11a9:	48 89 e5             	mov    %rsp,%rbp
+    11ac:	48 83 ec 10          	sub    $0x10,%rsp
+    11b0:	48 8d 45 f8          	lea    -0x8(%rbp),%rax
+    11b4:	48 89 c7             	mov    %rax,%rdi
+    11b7:	e8 8d ff ff ff       	call   1149 <gets>
+    11bc:	48 8d 45 f8          	lea    -0x8(%rbp),%rax
+    11c0:	48 89 c7             	mov    %rax,%rdi
+    11c3:	e8 68 fe ff ff       	call   1030 <puts@plt>
+    11c8:	b8 00 00 00 00       	mov    $0x0,%eax
+    11cd:	c9                   	leave
+    11ce:	c3                   	ret
 
 Disassembly of section .fini:
 
-00000000000011d8 <_fini>:
-    11d8:	48 83 ec 08          	sub    $0x8,%rsp
-    11dc:	48 83 c4 08          	add    $0x8,%rsp
-    11e0:	c3                   	ret
+00000000000011d0 <_fini>:
+    11d0:	48 83 ec 08          	sub    $0x8,%rsp
+    11d4:	48 83 c4 08          	add    $0x8,%rsp
+    11d8:	c3                   	ret
