@@ -30,36 +30,37 @@
         - [3.2.2. Access condition code](#322-access-condition-code)
             - [3.2.2.1. Set by Condition](#3221-set-by-condition)
         - [3.2.3. Jump Instructions](#323-jump-instructions)
-            - [Unconditional Jump](#unconditional-jump)
-            - [Conditional Jump](#conditional-jump)
-        - [Coding of Jump Instructions](#coding-of-jump-instructions)
-        - [Condition Branches Realized by Jump Instructions](#condition-branches-realized-by-jump-instructions)
-        - [Condition Branched Realized by Condition Transmission](#condition-branched-realized-by-condition-transmission)
-        - [Loop](#loop)
-            - [`do-while` Loop](#do-while-loop)
-            - [`while` Loop](#while-loop)
-            - [`for` Loop](#for-loop)
-        - [`switch` Sentence](#switch-sentence)
-    - [Procedure(过程)](#procedure过程)
-        - [Runtime Stack(运行时栈)](#runtime-stack运行时栈)
-            - [Stack Frame](#stack-frame)
-        - [Transfer Control(转移控制)](#transfer-control转移控制)
-            - [What Happens When Invoking a Procedure And Returning From It?](#what-happens-when-invoking-a-procedure-and-returning-from-it)
-        - [Transfer Data(数据传送)](#transfer-data数据传送)
-        - [Local Storage on the Stack(栈上的局部存储)](#local-storage-on-the-stack栈上的局部存储)
-            - [Common Situations](#common-situations)
-        - [Space of Local Storage in the Registers(寄存器中的局部存储空间)](#space-of-local-storage-in-the-registers寄存器中的局部存储空间)
-        - [Recursive Procedures(递归过程)](#recursive-procedures递归过程)
-    - [Array Allocate and Access(数组分配和访问)](#array-allocate-and-access数组分配和访问)
-        - [Basic Principles(基本原则)](#basic-principles基本原则)
-        - [Pointer Arithmetic(指针计算)](#pointer-arithmetic指针计算)
-        - [Nested Array(嵌套数组)](#nested-array嵌套数组)
-        - [Fixed-Size Array(定长数组)](#fixed-size-array定长数组)
-        - [Variable-Size Array(变长数组)](#variable-size-array变长数组)
-    - [Heterogeneous Data Structures(异质的数据结构)](#heterogeneous-data-structures异质的数据结构)
-        - [Struct](#struct)
-        - [Union](#union)
-        - [Data Alignment(数据对齐)](#data-alignment数据对齐)
+            - [3.2.3.1. Unconditional Jump](#3231-unconditional-jump)
+            - [3.2.3.2. Conditional Jump](#3232-conditional-jump)
+        - [3.2.4. Coding of Jump Instructions](#324-coding-of-jump-instructions)
+        - [3.2.5. Condition Branches Realized by Jump Instructions](#325-condition-branches-realized-by-jump-instructions)
+        - [3.2.6. Condition Branched Realized by Condition Transmission](#326-condition-branched-realized-by-condition-transmission)
+        - [3.2.7. Loop](#327-loop)
+            - [3.2.7.1. `do-while` Loop](#3271-do-while-loop)
+            - [3.2.7.2. `while` Loop](#3272-while-loop)
+            - [3.2.7.3. `for` Loop](#3273-for-loop)
+        - [3.2.8. `switch` Sentence](#328-switch-sentence)
+    - [3.3. Procedure(过程)](#33-procedure过程)
+        - [3.3.1. Runtime Stack(运行时栈)](#331-runtime-stack运行时栈)
+            - [3.3.1.1. Stack Frame](#3311-stack-frame)
+        - [3.3.2. Transfer Control(转移控制)](#332-transfer-control转移控制)
+            - [3.3.2.1. What Happens When Invoking a Procedure And Returning From It?](#3321-what-happens-when-invoking-a-procedure-and-returning-from-it)
+        - [3.3.3. Transfer Data(数据传送)](#333-transfer-data数据传送)
+        - [3.3.4. Local Storage on the Stack(栈上的局部存储)](#334-local-storage-on-the-stack栈上的局部存储)
+            - [3.3.4.1. Common Situations](#3341-common-situations)
+        - [3.3.5. Space of Local Storage in the Registers(寄存器中的局部存储空间)](#335-space-of-local-storage-in-the-registers寄存器中的局部存储空间)
+        - [3.3.6. Recursive Procedures(递归过程)](#336-recursive-procedures递归过程)
+    - [3.4. Array Allocate and Access(数组分配和访问)](#34-array-allocate-and-access数组分配和访问)
+        - [3.4.1. Basic Principles(基本原则)](#341-basic-principles基本原则)
+        - [3.4.2. Pointer Arithmetic(指针计算)](#342-pointer-arithmetic指针计算)
+        - [3.4.3. Nested Array(嵌套数组)](#343-nested-array嵌套数组)
+        - [3.4.4. Fixed-Size Array(定长数组)](#344-fixed-size-array定长数组)
+        - [3.4.5. Variable-Size Array(变长数组)](#345-variable-size-array变长数组)
+    - [3.5. Heterogeneous Data Structures(异质的数据结构)](#35-heterogeneous-data-structures异质的数据结构)
+        - [3.5.1. Struct](#351-struct)
+            - [Accessing Members in Struct](#accessing-members-in-struct)
+        - [3.5.2. Union](#352-union)
+        - [3.5.3. Data Alignment(数据对齐)](#353-data-alignment数据对齐)
 
 ---
 
@@ -559,7 +560,7 @@ there are two types of jump instructions
 1. unconditional  
 2. conditional  
 
-##### Unconditional Jump
+##### 3.2.3.1. Unconditional Jump
 
 its `jmp`  
 
@@ -581,13 +582,13 @@ its `jmp`
 
     what operand is is what we know before  
 
-##### Conditional Jump
+##### 3.2.3.2. Conditional Jump
 
 conditional jump only allows jump to specific label  
 
 the way we choose the condition is just the same with SET instructions  
 
-#### Coding of Jump Instructions
+#### 3.2.4. Coding of Jump Instructions
 
 this is what we should actually pay attention to  
 
@@ -597,23 +598,23 @@ that is to say, use the difference between dest instruction address and the foll
 
 and the second coding method is to provide the absolute address  
 
-#### Condition Branches Realized by Jump Instructions
+#### 3.2.5. Condition Branches Realized by Jump Instructions
 
-#### Condition Branched Realized by Condition Transmission
+#### 3.2.6. Condition Branched Realized by Condition Transmission
 
-#### Loop
+#### 3.2.7. Loop
 
-##### `do-while` Loop
+##### 3.2.7.1. `do-while` Loop
 
-##### `while` Loop
+##### 3.2.7.2. `while` Loop
 
-##### `for` Loop
+##### 3.2.7.3. `for` Loop
 
-#### `switch` Sentence
+#### 3.2.8. `switch` Sentence
 
 important concept: **jump table**  
 
-### Procedure(过程)
+### 3.3. Procedure(过程)
 
 **procedure** is a very important kind of abstract software  
 it provides a way to encapsulate(封装) the code  
@@ -640,7 +641,7 @@ here are some important attributes to handle:
 
 here we will talk about these mechanisms one by one  
 
-#### Runtime Stack(运行时栈)
+#### 3.3.1. Runtime Stack(运行时栈)
 
 Stack structure provides the LIFO principle of memory management  
 witch plays a crucial role in the invocation of procedures  
@@ -661,7 +662,7 @@ more clearly, we can say:
 we sub specific value from `%rsp` to allocate space for the procedure  
 and add specific value to `%rsp` to free the space  
 
-##### Stack Frame
+##### 3.3.1.1. Stack Frame
 
 after this, we should know another important concept:  
 **stack frame**(栈帧)  
@@ -673,7 +674,7 @@ if all the local variables can be stored in the registers
 and no other procedures are invoked  
 then the stack frame is not needed  
 
-#### Transfer Control(转移控制)
+#### 3.3.2. Transfer Control(转移控制)
 
 when the program transfers control  
 what it actually do is to set PC(程序计数器)  
@@ -692,7 +693,7 @@ we use `call` and `ret` instruction respectively
 *if we use objdump, we can see `callq` and `retq`, its just the same*  
 *it means it's x86-64 but not IA32*  
 
-##### What Happens When Invoking a Procedure And Returning From It?
+##### 3.3.2.1. What Happens When Invoking a Procedure And Returning From It?
 
 we now may wonder how do the two instructions work  
 first, they work very closely with stack  
@@ -712,7 +713,7 @@ and then:
 
 so we have finished a invoking of the procedure  
 
-#### Transfer Data(数据传送)
+#### 3.3.3. Transfer Data(数据传送)
 
 usually, the things we need transfer are not only the control  
 but also the data(or we usually say the parameters and return values)  
@@ -758,13 +759,13 @@ little test are as follows:
 *P.S. above is the way gcc under OS linux will do*  
 *Windows may attempt to use `DX` and `CX` first*  
 
-#### Local Storage on the Stack(栈上的局部存储)
+#### 3.3.4. Local Storage on the Stack(栈上的局部存储)
 
 Many easy procedures don't need these  
 but how do we know?  
 and when it happens, what it will do?  
 
-##### Common Situations
+##### 3.3.4.1. Common Situations
 
 1. registers are not enough  
 2. need to the address of some variables  
@@ -775,7 +776,7 @@ all in all
 when registers are not enough or we need stable address  
 the storage on the stack is needed  
 
-#### Space of Local Storage in the Registers(寄存器中的局部存储空间)
+#### 3.3.5. Space of Local Storage in the Registers(寄存器中的局部存储空间)
 
 We can now see that no matter what the procedure is running  
 they all share the same registers  
@@ -805,11 +806,11 @@ before invoking the callee
 in other word, callee can use these registers freely  
 so caller takes the responsibility to save the values in these registers  
 
-#### Recursive Procedures(递归过程)
+#### 3.3.6. Recursive Procedures(递归过程)
 
-### Array Allocate and Access(数组分配和访问)
+### 3.4. Array Allocate and Access(数组分配和访问)
 
-#### Basic Principles(基本原则)
+#### 3.4.1. Basic Principles(基本原则)
 
 in C, we know that the array is actually a linear consecutive value list  
 it is allocated a continuous space in the memory  
@@ -817,37 +818,183 @@ it is allocated a continuous space in the memory
 each element's address in the array have a strong linear relationship  
 [simple address calculation](#224-simple-memory-addressing-modes简单内存寻址模式) can be used to simplify the array access  
 
-#### Pointer Arithmetic(指针计算)
+for example, we want to get the value in the `i`th element in array `int A[]`  
+we can do like this:  
 
-as we know, too  
-C allows we to operate some calculations on pointers  
+```asm
+movl (%rdx,%rcx,4), %eax
+```
 
-#### Nested Array(嵌套数组)
+- `%rdx` : denotes the address of `A` here  
+- `%rcx` : denotes the index of the element(`i`) here  
+
+#### 3.4.2. Pointer Arithmetic(指针计算)
+
+as we all know, too  
+C allows us to operate some calculations on pointers  
+
+suppose that we have a pointer `p` pointing to the type `T`  
+and the byte size of `T` is `L`  
+
+then if we say `p+i`  
+what we actually do is belike:  
+`p_value` + `i * L`  
+
+what's we should pay much attention to is what we are calculating!  
+the **value** or the **address**?  
+
+for `int` we use long word and usually use `movl` to get the value  
+and for `address` we use quad word and usually use `leaq` to calculate the address  
+
+*P.S. when we try to get the difference between pointers, the result has the type `long`*  
+
+#### 3.4.3. Nested Array(嵌套数组)
 
 Nested array(or multi-dimensional array) is a special case of array  
 the basic principles also establish  
 
-#### Fixed-Size Array(定长数组)
+usually we can use multiple LEA instructions to get the address used to find the element  
+e.g. calculate `&A[i][j]`(type `int`)  
+
+```asm
+# A in %rdi, i in %rsi, j in %rdx
+leaq (%rsi,%rsi,2), %rax # compute 3i
+leaq (%rdi,%rax,4), %rax # compute A + 12i
+movl (%rax,%rdx,4), %eax # get M[A + 12i + 4j]
+```
+
+#### 3.4.4. Fixed-Size Array(定长数组)
 
 Fixed-size array:  
 fixed-size means that the array's size is fixed at compile time  
+*it's a good habit to use `#define CONST_NUM number` and then use the `CONST_NUM` as some fixed number*  
+*as when we need to modify the number, we just need to do the modification here one time*  
 
 it's performance can be optimized by the compiler  
 
-#### Variable-Size Array(变长数组)
+- [ ] example required here  
+
+#### 3.4.5. Variable-Size Array(变长数组)
 
 ISO C99 introduced a very important feature:  
 variable-size array is supported  
-*(at past, programmer have to use malloc or calloc to allocate space for these arrays)*  
+*(at past, programmers have to use malloc or calloc to allocate space for these arrays)*  
 
 Variable-size means that the array's dimension can be calculated until runtime  
+so if we want to compiler the way to get the address of the element in the array  
+we may need to do this in another way:  
 
-### Heterogeneous Data Structures(异质的数据结构)
+e.g. get `A[i][j]` in the array `int A[n][n]`, in witch `n` is a variable  
+
+```asm
+# n in %rdi, A in %rsi, i in %rdx, j in %rcx`
+imulq %rdx, %rdi # compute n*i
+leaq (%rsi,%rdi,4), %rax # compute A + 4*n*i
+movl (%rax,%rcx,4), %eax # get M[A + 4*n*i + 4*j]
+```
+
+different from [fixed Nested Array](#343-nested-array嵌套数组)  
+we using `imulq` to calculate the address of `A[i]`  
+`imulq` may cost a lot time more then `leaq`  
+
+### 3.5. Heterogeneous Data Structures(异质的数据结构)
 
 Heterogeneous(异质的) means：[introduction](https://www.merriam-webster.com/dictionary/heterogeneous)  
+here it means the data structures combining different types together  
 
-#### Struct  
+C provides two mechanisms:  
 
-#### Union
+- structure  
+    using `struct`  
+    putting different types together in a unit  
+- union  
+    using `union`  
+    allowing using several different types to refer to the same object  
 
-#### Data Alignment(数据对齐)
+#### 3.5.1. Struct
+
+in one structure(for example `s`)  
+all the components are put in a continuous space in memory  
+the pointer to the `s` is pointing to the first byte of `s`  
+
+##### Accessing Members in Struct
+
+compiler will maintain every type of the `struct`  
+remember the bias bytes of every component(`filed`)  
+so we can refer to the components in the `struct`  
+
+e.g.  
+
+```c
+struct s {
+    int i;
+    int j;
+    int a[2];
+    int *p;
+}
+```
+
+the start address:  
+
+| field  | start byte(`s` as 0) |
+| ------ | --------------------- |
+| `i`    | 0                     |
+| `j`    | 4                     |
+| `a[0]` | 8                     |
+| `a[1]` | 12                    |
+| `p`    | 16                    |
+
+we can know each `s` will take 24 bytes space  
+
+and we have the pointer `sp` pointing to `struct s*`  
+here we do something:  
+
+1. copy `i` to `j`  
+
+    ```asm
+    # sp in %rdi
+    movl (%rdi), %eax # get i
+    movl %eax, 4(%rdi) # copy i to j
+    ```
+
+2. get `a[i]` with `i` = 1  
+
+    ```asm
+    # sp in %rdi, i in %rsi
+    leaq 8(%rdi,%rsi,4), %rax # compute A + 8 + 4*i
+    ```
+
+    8 means the space occupied by `i` and `j`  
+
+**Summary:**  
+
+compiler will maintain the offset of each field in the struct  
+and the access to the field will be resolved in compile time  
+the machine code will not include any declaration or name info of the fields  
+all we can see is the presentation in the bias form  
+
+#### 3.5.2. Union
+
+the declaration of `union` is very similar to `struct`  
+but it means using different types to refer to the same block of memory  
+
+just similar to the example above, we have `union` `u`:  
+
+```c
+union u {
+    int i;
+    int j;
+    int a[2];
+    int *p;
+}
+```
+
+all the fields will start at byte 0  
+*we can just imaging we have one block of memory, we use union declaration to represent that we can translate this using different data types*  
+
+and each instance of `u` takes the biggest one of the fields' size  
+here it is 8 bytes  
+
+#### 3.5.3. Data Alignment(数据对齐)
+
+Why we need to do data alignment?  
