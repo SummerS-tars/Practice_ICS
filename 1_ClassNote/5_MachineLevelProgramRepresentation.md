@@ -61,6 +61,10 @@
             - [Accessing Members in Struct](#accessing-members-in-struct)
         - [3.5.2. Union](#352-union)
         - [3.5.3. Data Alignment(数据对齐)](#353-data-alignment数据对齐)
+    - [Combine the Data and Control in Machine-Level Program](#combine-the-data-and-control-in-machine-level-program)
+        - [Understand Pointer](#understand-pointer)
+        - [Introduction to the Usage of GDB](#introduction-to-the-usage-of-gdb)
+        - [Out-of-Bounds Memory References and Buffer Overflow(内存越界引用和缓冲区溢出)](#out-of-bounds-memory-references-and-buffer-overflow内存越界引用和缓冲区溢出)
 
 ---
 
@@ -998,3 +1002,63 @@ here it is 8 bytes
 #### 3.5.3. Data Alignment(数据对齐)
 
 Why we need to do data alignment?  
+in a word, to improve the performance of the memory system  
+*some computer system limit the legal addresses of the basic data types*  
+*they must be the multiple of specific value(usually 2, 4 or 8)*  
+
+| K   | type                |
+| --- | ------------------- |
+| 1   | char                |
+| 2   | short               |
+| 4   | int, float          |
+| 8   | long, double, char* |
+
+When all the instances of every types satisfy their alignment  
+then we can make sure the alignment is satisfied  
+
+- [ ] TODO what here means?  
+
+Compiler will using `.align` to denote the alignment global data should satisfy  
+
+How do compiler implements data alignment?  
+if the code includes `struct`  
+compiler may fill some empty bytes in or after the fields in the `struct` to implement the alignment  
+
+e.g.  
+
+```c
+struct s {
+    int i ;
+    char c ;
+    int j;
+}
+```
+
+the start byte:  
+
+| field | start byte |
+| ----- | ---------- |
+| i     | 0          |
+| c     | 4          |
+| j     | 8          |
+
+yes, we can find that `j` dose not start from 5 but actually from 8  
+it's because the compiler insert some empty after `c` to make sure `j` starts from the multiple of 4  
+*besides, the start address of `s` must be the multiple of 4 at first*  
+
+### Combine the Data and Control in Machine-Level Program
+
+right now, we have talked about two parts:  
+
+1. how machine-level program be controlled  
+2. how different data structures are implemented  
+
+in this section, we'll try to figure out  
+how data and control interact  
+
+#### Understand Pointer
+
+#### Introduction to the Usage of GDB
+
+#### Out-of-Bounds Memory References and Buffer Overflow(内存越界引用和缓冲区溢出)
+
