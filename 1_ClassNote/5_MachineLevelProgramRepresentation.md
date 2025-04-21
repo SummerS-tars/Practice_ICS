@@ -40,10 +40,26 @@
             - [`while` Loop](#while-loop)
             - [`for` Loop](#for-loop)
         - [`switch` Sentence](#switch-sentence)
-    - [Process(过程)](#process过程)
+    - [Procedure(过程)](#procedure过程)
         - [Runtime Stack(运行时栈)](#runtime-stack运行时栈)
             - [Stack Frame](#stack-frame)
         - [Transfer Control(转移控制)](#transfer-control转移控制)
+            - [What Happens When Invoking a Procedure And Returning From It?](#what-happens-when-invoking-a-procedure-and-returning-from-it)
+        - [Transfer Data(数据传送)](#transfer-data数据传送)
+        - [Local Storage on the Stack(栈上的局部存储)](#local-storage-on-the-stack栈上的局部存储)
+            - [Common Situations](#common-situations)
+        - [Space of Local Storage in the Registers(寄存器中的局部存储空间)](#space-of-local-storage-in-the-registers寄存器中的局部存储空间)
+        - [Recursive Procedures(递归过程)](#recursive-procedures递归过程)
+    - [Array Allocate and Access(数组分配和访问)](#array-allocate-and-access数组分配和访问)
+        - [Basic Principles(基本原则)](#basic-principles基本原则)
+        - [Pointer Arithmetic(指针计算)](#pointer-arithmetic指针计算)
+        - [Nested Array(嵌套数组)](#nested-array嵌套数组)
+        - [Fixed-Size Array(定长数组)](#fixed-size-array定长数组)
+        - [Variable-Size Array(变长数组)](#variable-size-array变长数组)
+    - [Heterogeneous Data Structures(异质的数据结构)](#heterogeneous-data-structures异质的数据结构)
+        - [Struct](#struct)
+        - [Union](#union)
+        - [Data Alignment(数据对齐)](#data-alignment数据对齐)
 
 ---
 
@@ -597,17 +613,17 @@ and the second coding method is to provide the absolute address
 
 important concept: **jump table**  
 
-### Process(过程)
+### Procedure(过程)
 
-**Process** is a very important kind of abstract software  
+**procedure** is a very important kind of abstract software  
 it provides a way to encapsulate(封装) the code  
 just leaves some specific interface(params) and a optional return value  
 
-A well designed program should make good use of processes  
+A well designed program should make good use of procedures  
 hides the implementation details  
 while providing a clear interface  
 that is to say  
-make it easy to understand what are needed to use the processes and what they will do  
+make it easy to understand what are needed to use the  procedures and what they will do  
 
 it may have different forms in different programming languages  
 like `function`, `method`, `subroutine`, and so on  
@@ -615,7 +631,7 @@ like `function`, `method`, `subroutine`, and so on
 firstly,
 here we care about here is the shared characteristics of them  
 
-to implement the concept of process in machine level  
+to implement the concept of procedure in machine level  
 here are some important attributes to handle:  
 
 1. **transfer control**(传递控制)  
@@ -627,22 +643,22 @@ here we will talk about these mechanisms one by one
 #### Runtime Stack(运行时栈)
 
 Stack structure provides the LIFO principle of memory management  
-witch plays a crucial role in the invocation of processes  
+witch plays a crucial role in the invocation of procedures  
 *(actually in many other language, it is the same)*  
 
 stack grows from high address to low address  
-when Process `P` invokes Process `Q`  
-`P` and all the process in the invoking chain will be suspended(挂起)  
+when procedure `P` invokes procedure `Q`  
+`P` and all the procedure in the invoking chain will be suspended(挂起)  
 *(we can just regard this as we don't pay attention to these temporary)*  
-and we just need to pay attention to the process `Q` right now  
-it can allocate new spaces for local variables or another processes  
+and we just need to pay attention to the procedure `Q` right now  
+it can allocate new spaces for local variables or another procedures  
 when we finished `Q`, we can just releases the space of it and return to `P`  
 
 and we can stare in the stack to find what it is doing right now  
 just as what we have mentioned ([here](#233-stack-operation栈操作))  
 we just to move the pointer to the top of the stack to manage the stack  
 more clearly, we can say:  
-we sub specific value from `%rsp` to allocate space for the process  
+we sub specific value from `%rsp` to allocate space for the procedure  
 and add specific value to `%rsp` to free the space  
 
 ##### Stack Frame
@@ -650,7 +666,188 @@ and add specific value to `%rsp` to free the space
 after this, we should know another important concept:  
 **stack frame**(栈帧)  
 
+in a word, it's the space allocated for a procedure in the stack  
+
+not all procedures have their own stack frame  
+if all the local variables can be stored in the registers  
+and no other procedures are invoked  
+then the stack frame is not needed  
+
 #### Transfer Control(转移控制)
 
 when the program transfers control  
 what it actually do is to set PC(程序计数器)  
+
+to invoke a procedure and return from it  
+we use `call` and `ret` instruction respectively  
+
+| instruction   | description                               |
+| :------------ | :---------------------------------------- |
+| call Label    | invoke procedure                          |
+| call *Operand | invoke procedure                          |
+| ret           | return from the running invoked procedure |
+
+*just like jump, we can call the procedure directly or indirectly*  
+
+*if we use objdump, we can see `callq` and `retq`, its just the same*  
+*it means it's x86-64 but not IA32*  
+
+##### What Happens When Invoking a Procedure And Returning From It?
+
+we now may wonder how do the two instructions work  
+first, they work very closely with stack  
+
+`call`: remember the address of the current procedure(caller) and jump to the invoked procedure(callee)  
+more clearly, it will:  
+
+1. push the address of the next instruction after `call`(for example, `A`) onto the stack  
+2. change the `%rip` to the address of the invoked procedure  
+
+after the callee is finished, we need to return to the caller  
+so we first free the space of the callee in the stack  
+and then:  
+
+1. pop `A` from the stack  
+2. change the `%rip` to `A`  
+
+so we have finished a invoking of the procedure  
+
+#### Transfer Data(数据传送)
+
+usually, the things we need transfer are not only the control  
+but also the data(or we usually say the parameters and return values)  
+here we talk about how data was transfer when we invoke a procedure  
+
+**Transfer Data Mechanism**:  
+
+1. mostly through registers  
+2. if 1. not enough, use stack  
+
+when using registers, six values are supported normally  
+and there is a specific order to use them:  
+
+1. `DI`(destination index)
+2. `SI`(source index)
+3. `DX`(data register)
+4. `CX`(counter register)
+5. `R8`(additional register)
+6. `R9`(additional register)
+
+the specific space in each register is up to the data type  
+the name we don't mentioned here  
+
+when the number is over 6  
+we have to use stack  
+
+more specifically, the compiler will do like this:  
+
+1. store the first 6 parameters in the registers  
+2. store the 7~nth parameters in the stack  
+    *normally the 1. happens before 2.*  
+
+*Attention: the parameters themselves also have the order when put into rigisters*  
+*from the last to the first*  
+*and the 7~nth parameters are also the same in the stack*  
+*that is to say, 7th parameter will be on the top of stack before `call`*  
+
+little test are as follows:  
+
+[TransferParams.c](../4_TestCode/10_Week10/Stack/TransferParams.c)  
+[TransferParams.asm](../4_TestCode/10_Week10/Stack/TransferParams.asm)  
+
+*P.S. above is the way gcc under OS linux will do*  
+*Windows may attempt to use `DX` and `CX` first*  
+
+#### Local Storage on the Stack(栈上的局部存储)
+
+Many easy procedures don't need these  
+but how do we know?  
+and when it happens, what it will do?  
+
+##### Common Situations
+
+1. registers are not enough  
+2. need to the address of some variables  
+3. variables contains arrays or structures  
+    *we need to use address to access there things*  
+
+all in all  
+when registers are not enough or we need stable address  
+the storage on the stack is needed  
+
+#### Space of Local Storage in the Registers(寄存器中的局部存储空间)
+
+We can now see that no matter what the procedure is running  
+they all share the same registers  
+*(although only one is running at a time)*  
+
+so how we make sure the value in the registers will not change as the way we don't expect?  
+x86-64 provides the unified practice to use the registers for all procedures  
+
+as a result, the registers are divided into two types:  
+
+1. **callee saved**(被调用者保存)  
+    `%rbx`, `%rbp`, `%r12~15`  
+2. **caller saved**(调用者保存)  
+    except callee saved registers and `%rsp`  
+    `%rax`, `%rcx`, `%rdx`, `%rsi`, `%rdi`, `%r8~11`  
+
+callee saved and caller saved mechanism limited  
+the way how the value in different registers should be saved and used  
+
+callee saved registers:  
+the callee should make sure the values in these registers are the same  
+as they were when the callee was invoked  
+
+caller saved registers:  
+caller are responsible for saving proper values in these registers  
+before invoking the callee  
+in other word, callee can use these registers freely  
+so caller takes the responsibility to save the values in these registers  
+
+#### Recursive Procedures(递归过程)
+
+### Array Allocate and Access(数组分配和访问)
+
+#### Basic Principles(基本原则)
+
+in C, we know that the array is actually a linear consecutive value list  
+it is allocated a continuous space in the memory  
+
+each element's address in the array have a strong linear relationship  
+[simple address calculation](#224-simple-memory-addressing-modes简单内存寻址模式) can be used to simplify the array access  
+
+#### Pointer Arithmetic(指针计算)
+
+as we know, too  
+C allows we to operate some calculations on pointers  
+
+#### Nested Array(嵌套数组)
+
+Nested array(or multi-dimensional array) is a special case of array  
+the basic principles also establish  
+
+#### Fixed-Size Array(定长数组)
+
+Fixed-size array:  
+fixed-size means that the array's size is fixed at compile time  
+
+it's performance can be optimized by the compiler  
+
+#### Variable-Size Array(变长数组)
+
+ISO C99 introduced a very important feature:  
+variable-size array is supported  
+*(at past, programmer have to use malloc or calloc to allocate space for these arrays)*  
+
+Variable-size means that the array's dimension can be calculated until runtime  
+
+### Heterogeneous Data Structures(异质的数据结构)
+
+Heterogeneous(异质的) means：[introduction](https://www.merriam-webster.com/dictionary/heterogeneous)  
+
+#### Struct  
+
+#### Union
+
+#### Data Alignment(数据对齐)
