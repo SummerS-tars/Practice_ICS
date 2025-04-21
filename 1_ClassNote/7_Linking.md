@@ -23,8 +23,10 @@ it will enable us to better understand huge programs, avoid of some dangerous bu
 - [Static Linking(静态链接)](#static-linking静态链接)
 - [Object File(目标文件)](#object-file目标文件)
 - [ELF(Executable and Linkable Format, 可重定位目标文件)](#elfexecutable-and-linkable-format-可重定位目标文件)
+    - [ELF Object File Format](#elf-object-file-format)
 - [Symbol and Symbol Table(符号和符号表)](#symbol-and-symbol-table符号和符号表)
 - [Symbol Resolution(符号解析)](#symbol-resolution符号解析)
+    - [Local Symbols](#local-symbols)
 
 ---
 
@@ -62,6 +64,30 @@ witch will load the program into memory and run it
 
 ## ELF(Executable and Linkable Format, 可重定位目标文件)
 
+Standard binary format for object files  
+
+one unified format for:  
+
+- Relocatable object files(`.o`)  
+- Executable object files(`a.out`)  
+- Shared object files(`.so`)  
+
+they have a generic name: ELF binaries  
+
+### ELF Object File Format
+
+- ELF header  
+- Segment header table  
+- `.text` section  
+- `.rodate` section  
+- `.data` section  
+- `.bss` section  
+- `.symtab` section
+- `.rel.text` section  
+- `.rel.data` section  
+- `.debug` section  
+- Section header table
+
 ## Symbol and Symbol Table(符号和符号表)
 
 Three types of symbols:  
@@ -72,3 +98,13 @@ Three types of symbols:
 
 ## Symbol Resolution(符号解析)
 
+### Local Symbols
+
+- local non-static variables: stored on the stack  
+- local static C variables: stored in `.bss` or `.data`  
+
+Symbols attributes: **strong** or **weak**  
+
+**Rules:**  
+
+1. 
