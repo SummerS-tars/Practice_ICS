@@ -14,7 +14,7 @@ char *gets(char *s)
         return NULL ;
     }
 
-    *dest ++ = '\0' ;
+    *dest = '\0' ;
     return s;
 }
 
