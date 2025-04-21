@@ -115,7 +115,7 @@ Disassembly of section .text:
     114d:	48 83 ec 20          	sub    $0x20,%rsp
     1151:	48 89 7d e8          	mov    %rdi,-0x18(%rbp)
     1155:	48 8b 45 e8          	mov    -0x18(%rbp),%rax
-    1159:	48 89 45 f8          	mov    %rax,-0x8(%rbp)
+    1159:	48 89 45 f8          	mov    %rax,-0x8(%rbp)  # char *s stores -0x8(%rbp)
     115d:	eb 11                	jmp    1170 <gets+0x27>
     115f:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
     1163:	48 8d 50 01          	lea    0x1(%rax),%rdx
