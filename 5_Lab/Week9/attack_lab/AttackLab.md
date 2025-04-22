@@ -10,9 +10,11 @@
     - [2.1. Level 1](#21-level-1)
         - [2.1.1. Process Record](#211-process-record)
     - [2.2. Level 2](#22-level-2)
-    - [Attempt Thoughts](#attempt-thoughts)
-    - [Process Record](#process-record)
-    - [Level 3](#level-3)
+        - [2.2.1. Attempt Thoughts](#221-attempt-thoughts)
+        - [2.2.2. Process Record](#222-process-record)
+    - [2.3. Level 3](#23-level-3)
+        - [2.3.1. Attempt Thoughts](#231-attempt-thoughts)
+        - [2.3.2. Process Record](#232-process-record)
 
 ---
 
@@ -168,7 +170,7 @@ it needs an argument: `unsigned val`
 witch will be compared with my cookie  
 if equal, and we did it success  
 
-### Attempt Thoughts
+#### 2.2.1. Attempt Thoughts
 
 1. still use the bug of `getbuf`  
 2. insert some instruction to do two thing  
@@ -180,7 +182,7 @@ if equal, and we did it success
     3. part3 : overwrite the ret addr of `getbuf`  
         use the starting address of the inserted code  
 
-### Process Record
+#### 2.2.2. Process Record
 
 1. use gdb to run `ctarget` to find the the position of the stack used as buffer  
 
@@ -256,5 +258,15 @@ if equal, and we did it success
     NICE JOB!
     ```
 
-### Level 3
+### 2.3. Level 3
 
+according to the analyze of the touch3  
+we can seemingly understand that what we should do here is  
+
+1. insert the hex of cookie as string  
+2. get the address of the string  
+3. pass the address to `touch3`(in `%rdi`)  
+
+#### 2.3.1. Attempt Thoughts
+
+#### 2.3.2. Process Record
