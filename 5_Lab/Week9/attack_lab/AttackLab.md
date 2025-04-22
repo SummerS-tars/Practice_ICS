@@ -145,7 +145,11 @@ but exploit string to redirect the program to execute an existing procedure
 5. record  
 
     ```txt
-    Ouch!: You caused a segmentation fault!
+    Cookie: 0x72dfe7ad
+    Type string:Touch1!: You called touch1()
+    Valid solution for level 1 with target ctarget
+    PASS: Sent exploit string to server to be validated.
+    NICE JOB!
     ```
 
 ### 2.2. Level 2
