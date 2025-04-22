@@ -10,6 +10,8 @@
     - [2.1. Level 1](#21-level-1)
         - [2.1.1. Process Record](#211-process-record)
     - [2.2. Level 2](#22-level-2)
+    - [Attempt Thoughts](#attempt-thoughts)
+    - [Process Record](#process-record)
 
 ---
 
@@ -152,3 +154,23 @@ but exploit string to redirect the program to execute an existing procedure
 
 Phase 2  
 we start to inject a small amount of codes as part of our exploit string  
+
+important function:  
+
+`touch2`  
+
+it needs an argument: `unsigned val`  
+witch will be compared with my cookie  
+if equal, and we did it success  
+
+### Attempt Thoughts
+
+1. still use the bug of `getbuf`  
+2. insert some instruction to do two thing  
+    1. modify the `%rdi` by cookie  
+    2. change the ret addr with `touch2` addr
+
+0x5565d408
+
+### Process Record
+
