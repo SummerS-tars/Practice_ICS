@@ -2,5 +2,6 @@
     "MD010" : false,
     "MD007" : {
         "indent": 4
-    }
+    },
+    "MD013" : false
 }
