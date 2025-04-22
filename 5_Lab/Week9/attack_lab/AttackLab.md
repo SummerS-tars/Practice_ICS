@@ -1,4 +1,4 @@
-# Attack Lab Report
+# Attack Lab Report 23307110192 朱文凯
 
 ---
 
@@ -379,7 +379,7 @@ bug using gadgets from gadget farm
 2. `popq` instructions  
     just only 1 byte  
     start from `58`  
-    correspond to one register in sequence one by one 
+    correspond to one register in sequence one by one  
     `58` : `%rax`  
     `59` : `%rcx`  
     `5a` : `%rdx`  
