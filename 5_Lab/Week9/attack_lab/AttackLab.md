@@ -15,6 +15,9 @@
     - [2.3. Level 3](#23-level-3)
         - [2.3.1. Attempt Thoughts](#231-attempt-thoughts)
         - [2.3.2. Process Record](#232-process-record)
+- [3. Part II : Return-oriented Programming(ROP) Attacks](#3-part-ii--return-oriented-programmingrop-attacks)
+    - [Level 2](#level-2)
+        - [Gadget Note](#gadget-note)
 
 ---
 
@@ -328,3 +331,53 @@ here we only mention the important part
 `0x00` can't be inserted in the string directly  
 (except for it is in the instructions)  
 maybe  
+
+## 3. Part II : Return-oriented Programming(ROP) Attacks
+
+`rtarget` uses randomization and nonexecutable stack to protect itself from CI attack  
+so CI is truly hard to perform to it  
+
+ROP is not similar to CI to insert our own code  
+but try to make fully use of the existing code  
+witch can avoid the protection listed above  
+
+### Level 2
+
+Phase 4  
+target: the same with phase 2  
+bug using gadgets from gadget farm  
+
+#### Gadget Note
+
+1. `movq` instructions  
+    start witch 2 bytes: `48 89`  
+    the 3rd byte determine the source and destination registers  
+
+2. `popq` instructions  
+    just only 1 byte  
+    start from `58`  
+    correspond to one register in sequence one by one 
+    `58` : `%rax`  
+    `59` : `%rcx`  
+    `5a` : `%rdx`  
+    `5b` : `%rbx`  
+    `5c` : `%rsp`  
+    `5d` : `%rbp`  
+    `5e` : `%rsi`  
+    `5f` : `%rdi`  
+
+3. `movl` instructions  
+    start with 1 byte: `89`  
+    the 2nd byte determine the source and destination registers  
+
+4. 2-byte functional nop(no operation) instructions  
+    `andb`  
+    `orb`  
+    `cmpb`  
+    `testb`  
+
+5. `ret`: c3  
+
+6. `nop`: `90`  
+    it is just used to increment the PC  
+    without any side effect  
