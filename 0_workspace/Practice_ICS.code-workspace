@@ -12,6 +12,7 @@
 			"movl",
 			"movq",
 			"nohup",
+			"nonexecutable",
 			"pkill",
 			"sete",
 			"setne",
