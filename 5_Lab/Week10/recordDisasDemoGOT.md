@@ -1,6 +1,6 @@
 # Record
 
-## PLT of `linear_sum`  
+## PLT and GOT of `linear_sum`  
 
 ```bash
 disas linear_sum
