@@ -55,10 +55,11 @@ it will enable us to better understand huge programs, avoid of some dangerous bu
     - [12.1. PIC Data Reference](#121-pic-data-reference)
     - [12.2. PIC Function Invocation](#122-pic-function-invocation)
 - [13. Library Interpositioning(库打桩)](#13-library-interpositioning库打桩)
-    - [Basic Thought](#basic-thought)
-    - [Interpositioning at Compiletime](#interpositioning-at-compiletime)
-    - [Interpositioning at Linktime](#interpositioning-at-linktime)
-    - [Interpositioning at Runtime](#interpositioning-at-runtime)
+    - [13.1. Basic Thought](#131-basic-thought)
+    - [13.2. Interpositioning at Compiletime](#132-interpositioning-at-compiletime)
+    - [13.3. Interpositioning at Linktime](#133-interpositioning-at-linktime)
+    - [13.4. Interpositioning at Runtime](#134-interpositioning-at-runtime)
+- [14. Tools to Handle Object Files](#14-tools-to-handle-object-files)
 
 ---
 
@@ -424,7 +425,7 @@ among these parts:
 
 *we can find `.rel` is no longer exist here*  
 *for the executable file has been fully linked here*  
-*so the `.rel` is no more needed*    
+*so the `.rel` is no more needed*  
 
 ## 9. Load Executable File
 
@@ -527,7 +528,7 @@ we can use this mechanism to:
 - validate and track the input and output value of a function  
 - replace a function with a different implementation  
 
-### Basic Thought
+### 13.1. Basic Thought
 
 A object function to be interposed : `foo`  
 replace it with a wrapper function: `foo_wrapper`  
@@ -541,7 +542,7 @@ return the result to the caller
 
 this can happen at compilation time, link time, load time or runtime  
 
-### Interpositioning at Compiletime
+### 13.2. Interpositioning at Compiletime
 
 Use preprocessor to interpositioning at compiletime  
 
@@ -562,7 +563,7 @@ that is to say
 the `malloc.h` in standard library  
 will be replaced by our own edition  
 
-### Interpositioning at Linktime
+### 13.3. Interpositioning at Linktime
 
 [mymallocLinktime.c](../4_TestCode/11_Week11/InterpositioningLink/mymallocLinktime.c)  
 
@@ -581,7 +582,7 @@ Linux static linker `ld` supports to use `--wrap f` arg to interpose at linktime
 linker should resolve the reference of `f` as `__wrap_f`  
 and resolve the reference of `__real_f` as `f`  
 
-### Interpositioning at Runtime
+### 13.4. Interpositioning at Runtime
 
 Interpositioning at compiletime needs us able to access to the src codes of the program  
 while at linktime, we need to be able to access to the relocatable object files
@@ -592,3 +593,28 @@ using witch we only need to access to the exe object file
 the mechanism is based on the `LD_PRELOAD` environment variable of dynamic linker  
 which denotes the `.so` that will be retrieved first  
 we can easy to use this mechanism to interpose any functions in any `.so`  
+
+[mymallocRuntime.c](../4_TestCode/11_Week11/InterpositioningRuntime/mymallocRuntime.c)  
+*the example in CSAPP may not work correctly*  
+
+```bash
+gcc -DRUNTIME -shared -fpic -o mymalloc.so mymallocRuntime.c -ldl
+gcc -o intr int.c
+LD_PRELOAD="./mymalloc.so" ./intr
+```
+
+`-l` is the standard arg to link library  
+`-ldl` actually means link the `libdl.so` library  
+*it will automatically add prefix `lib` and suffix `.so`*  
+*libdl is Dynamic Linking libarary, provide the function to load shared library at runtime*  
+
+## 14. Tools to Handle Object Files
+
+- `ar`  
+- `strings`  
+- `strip`  
+- `nm`  
+- `size`  
+- `readelf`  
+- `objdump`  
+- `ldd`  
