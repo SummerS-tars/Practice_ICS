@@ -1,0 +1,131 @@
+ELF 头：
+  Magic：   7f 45 4c 46 02 01 01 00 00 00 00 00 00 00 00 00 
+  类别:                              ELF64
+  数据:                              2 补码，小端序 (little endian)
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI 版本:                          0
+  类型:                              DYN (共享目标文件)
+  系统架构:                          Advanced Micro Devices X86-64
+  版本:                              0x1
+  入口点地址：               0x0
+  程序头起点：          64 (bytes into file)
+  Start of section headers:          13512 (bytes into file)
+  标志：             0x0
+  Size of this header:               64 (bytes)
+  Size of program headers:           56 (bytes)
+  Number of program headers:         9
+  Size of section headers:           64 (bytes)
+  Number of section headers:         24
+  Section header string table index: 23
+
+节头：
+  [号] 名称              类型             地址              偏移量          大小              全体大小          旗标   链接   信息   对齐
+       
+  [ 0]                   NULL             0000000000000000  00000000 0000000000000000  0000000000000000           0     0     0
+       
+  [ 1] .note.gnu.bu[...] NOTE             0000000000000238  00000238 0000000000000024  0000000000000000   A       0     0     4
+       
+  [ 2] .gnu.hash         GNU_HASH         0000000000000260  00000260 0000000000000028  0000000000000000   A       3     0     8
+       
+  [ 3] .dynsym           DYNSYM           0000000000000288  00000288 00000000000000a8  0000000000000018   A       4     1     8
+       
+  [ 4] .dynstr           STRTAB           0000000000000330  00000330 000000000000006b  0000000000000000   A       0     0     1
+       
+  [ 5] .rela.dyn         RELA             00000000000003a0  000003a0 00000000000000a8  0000000000000018   A       3     0     8
+       
+  [ 6] .init             PROGBITS         0000000000001000  00001000 0000000000000017  0000000000000000  AX       0     0     4
+       
+  [ 7] .plt              PROGBITS         0000000000001020  00001020 0000000000000010  0000000000000010  AX       0     0     16
+       
+  [ 8] .plt.got          PROGBITS         0000000000001030  00001030 0000000000000008  0000000000000008  AX       0     0     8
+       
+  [ 9] .text             PROGBITS         0000000000001040  00001040 0000000000000122  0000000000000000  AX       0     0     16
+       
+  [10] .fini             PROGBITS         0000000000001164  00001164 0000000000000009  0000000000000000  AX       0     0     4
+       
+  [11] .eh_frame_hdr     PROGBITS         0000000000002000  00002000 000000000000002c  0000000000000000   A       0     0     4
+       
+  [12] .eh_frame         PROGBITS         0000000000002030  00002030 000000000000009c  0000000000000000   A       0     0     8
+       
+  [13] .init_array       INIT_ARRAY       0000000000003e68  00002e68 0000000000000008  0000000000000008  WA       0     0     8
+       
+  [14] .fini_array       FINI_ARRAY       0000000000003e70  00002e70 0000000000000008  0000000000000008  WA       0     0     8
+       
+  [15] .dynamic          DYNAMIC          0000000000003e78  00002e78 0000000000000150  0000000000000010  WA       4     0     8
+       
+  [16] .got              PROGBITS         0000000000003fc8  00002fc8 0000000000000020  0000000000000008  WA       0     0     8
+       
+  [17] .got.plt          PROGBITS         0000000000003fe8  00002fe8 0000000000000018  0000000000000008  WA       0     0     8
+       
+  [18] .data             PROGBITS         0000000000004000  00003000 0000000000000008  0000000000000000  WA       0     0     8
+       
+  [19] .bss              NOBITS           0000000000004008  00003008 0000000000000008  0000000000000000  WA       0     0     1
+       
+  [20] .comment          PROGBITS         0000000000000000  00003008 000000000000001f  0000000000000001  MS       0     0     1
+       
+  [21] .symtab           SYMTAB           0000000000000000  00003028 0000000000000270  0000000000000018          22    20     8
+       
+  [22] .strtab           STRTAB           0000000000000000  00003298 000000000000016d  0000000000000000           0     0     1
+       
+  [23] .shstrtab         STRTAB           0000000000000000  00003405 00000000000000c3  0000000000000000           0     0     1
+       
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings), I (info),
+  L (link order), O (extra OS processing required), G (group), T (TLS),
+  C (compressed), x (unknown), o (OS specific), E (exclude),
+  D (mbind), l (large), p (processor specific)
+
+程序头：
+  Type           Offset             VirtAddr           PhysAddr           FileSiz            MemSiz              Flags  Align
+                 
+  LOAD           0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000448 0x0000000000000448  R      0x1000
+                 
+  LOAD           0x0000000000001000 0x0000000000001000 0x0000000000001000 0x000000000000016d 0x000000000000016d  R E    0x1000
+                 
+  LOAD           0x0000000000002000 0x0000000000002000 0x0000000000002000 0x00000000000000cc 0x00000000000000cc  R      0x1000
+                 
+  LOAD           0x0000000000002e68 0x0000000000003e68 0x0000000000003e68 0x00000000000001a0 0x00000000000001a8  RW     0x1000
+                 
+  DYNAMIC        0x0000000000002e78 0x0000000000003e78 0x0000000000003e78 0x0000000000000150 0x0000000000000150  RW     0x8
+                 
+  NOTE           0x0000000000000238 0x0000000000000238 0x0000000000000238 0x0000000000000024 0x0000000000000024  R      0x4
+                 
+  GNU_EH_FRAME   0x0000000000002000 0x0000000000002000 0x0000000000002000 0x000000000000002c 0x000000000000002c  R      0x4
+                 
+  GNU_STACK      0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000000 0x0000000000000000  RW     0x10
+                 
+  GNU_RELRO      0x0000000000002e68 0x0000000000003e68 0x0000000000003e68 0x0000000000000198 0x0000000000000198  R      0x1
+                 
+
+ Section to Segment mapping:
+  段节...
+   00     .note.gnu.build-id .gnu.hash .dynsym .dynstr .rela.dyn 
+   01     .init .plt .plt.got .text .fini 
+   02     .eh_frame_hdr .eh_frame 
+   03     .init_array .fini_array .dynamic .got .got.plt .data .bss 
+   04     .dynamic 
+   05     .note.gnu.build-id 
+   06     .eh_frame_hdr 
+   07     
+   08     .init_array .fini_array .dynamic .got .got.plt 
+
+Dynamic section at offset 0x2e78 contains 17 entries:
+  标记        类型                         名称/值
+ 0x000000000000000c (INIT)               0x1000
+ 0x000000000000000d (FINI)               0x1164
+ 0x0000000000000019 (INIT_ARRAY)         0x3e68
+ 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)
+ 0x000000000000001a (FINI_ARRAY)         0x3e70
+ 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)
+ 0x000000006ffffef5 (GNU_HASH)           0x260
+ 0x0000000000000005 (STRTAB)             0x330
+ 0x0000000000000006 (SYMTAB)             0x288
+ 0x000000000000000a (STRSZ)              107 (bytes)
+ 0x000000000000000b (SYMENT)             24 (bytes)
+ 0x0000000000000003 (PLTGOT)             0x3fe8
+ 0x0000000000000007 (RELA)               0x3a0
+ 0x0000000000000008 (RELASZ)             168 (bytes)
+ 0x0000000000000009 (RELAENT)            24 (bytes)
+ 0x000000006ffffff9 (RELACOUNT)          3
+ 0x0000000000000000 (NULL)               0x0
