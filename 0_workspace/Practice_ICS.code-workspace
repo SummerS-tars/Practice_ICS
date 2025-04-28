@@ -9,6 +9,7 @@
 			"cmpl",
 			"CSAPP",
 			"killall",
+			"Linktime",
 			"movl",
 			"movq",
 			"nohup",

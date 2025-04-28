@@ -55,6 +55,10 @@ it will enable us to better understand huge programs, avoid of some dangerous bu
     - [12.1. PIC Data Reference](#121-pic-data-reference)
     - [12.2. PIC Function Invocation](#122-pic-function-invocation)
 - [13. Library Interpositioning(库打桩)](#13-library-interpositioning库打桩)
+    - [Basic Thought](#basic-thought)
+    - [Interpositioning at Compiletime](#interpositioning-at-compiletime)
+    - [Interpositioning at Linktime](#interpositioning-at-linktime)
+    - [Interpositioning at Runtime](#interpositioning-at-runtime)
 
 ---
 
@@ -418,7 +422,9 @@ among these parts:
 6-7 is rw(data segmentation)  
 8-12 will not be loaded into memory  
 
-*we can find `.rel` is no longer exist here for it is not needed anymore in executable file*  
+*we can find `.rel` is no longer exist here*  
+*for the executable file has been fully linked here*  
+*so the `.rel` is no more needed*    
 
 ## 9. Load Executable File
 
@@ -472,9 +478,117 @@ it is a necessary arg for shared library compilation
 
 ### 12.1. PIC Data Reference
 
-Important Concepts:  
-GOT(Global Offset Table)  
+**Important Fact:**  
+The distance between the data and code sections is fixed  
+no matter where we load an object module in memory  
+that is to say  
+the offset between any instruction in the code section and the data in the data section is a constant value at runtime(运行时常量)  
+
+Making use of this fact  
+the compiler generate a table called GOT(Global Offset Table)  
+at the beginning of the data section  
+all the object modules witch reference the global object have their own GOTs  
+
+every data object(procedure or global var) referenced by the object module  
+will have an 8-byte entry in the GOT  
+and compiler will generate a relocation entry for each of them  
+which will be relocated by dynamic linker at load time  
+to make sure the entry in GOT have the right absolute address of the object  
+
+*all in all*  
+*the GOT will contains the absolute address of the global object referenced by the object module*  
+*and why we use GOT is because of the fixed runtime offset between GOT and instruction*  
+
+- [ ] here still get some confusion  
+    about how GOT get the absolute address of the global object?  
 
 ### 12.2. PIC Function Invocation
 
+**lazy binding**  
+
+PLT(Procedure Linkage Table, 过程链接表)  
+
+The cooperation between GOT and PLT is very complex  
+here not mentioned right now  
+
+- [ ] to be added here  
+
 ## 13. Library Interpositioning(库打桩)
+
+Library Interpositioning is a powerful technique  
+which allows us to intercept the function calls to a shared library  
+and replace it with our own function  
+
+- [ ] here may cause some security issues right?  
+
+we can use this mechanism to:  
+
+- monitor how many times a function is called  
+- validate and track the input and output value of a function  
+- replace a function with a different implementation  
+
+### Basic Thought
+
+A object function to be interposed : `foo`  
+replace it with a wrapper function: `foo_wrapper`  
+
+*attention: the prototype of `foo_wrapper` must be the same as `foo`*  
+
+and by using a specific mechanism to interposition  
+we can cheat the system to call `foo_wrapper` instead of `foo`  
+and then call `foo`  
+return the result to the caller  
+
+this can happen at compilation time, link time, load time or runtime  
+
+### Interpositioning at Compiletime
+
+Use preprocessor to interpositioning at compiletime  
+
+[int.c](../4_TestCode/11_Week11/InterpositioningCompile/int.c)  
+[malloc.h](../4_TestCode/11_Week11/InterpositioningCompile/malloc.h)  
+[mymallocCompiletime](../4_TestCode/11_Week11/InterpositioningCompile/mymallocCompiletime.c)  
+
+```bash
+gcc -DCOMPILETIME -c mymallocCompiletime.c
+gcc -I. -o intc int.c mymallocCompiletime.o
+```
+
+the `-I.` arg is very important  
+which instructs to find the head file(`.h`) at `.`(the current dir) at first  
+`-D{MACRO}` arg is used to define a macro  
+
+that is to say  
+the `malloc.h` in standard library  
+will be replaced by our own edition  
+
+### Interpositioning at Linktime
+
+[mymallocLinktime.c](../4_TestCode/11_Week11/InterpositioningLink/mymallocLinktime.c)  
+
+```bash
+gcc -DLINKTIME -c mymallocLinktime.c 
+gcc -c int.c
+gcc -Wl,--wrap,malloc -Wl,--wrap,free -o intl int.o mymallocLinktime.o
+```
+
+the `-Wl,option` arg means:  
+the `option` will be passed to the `ld`  
+
+Linux static linker `ld` supports to use `--wrap f` arg to interpose at linktime  
+
+`--warp f` arg means:  
+linker should resolve the reference of `f` as `__wrap_f`  
+and resolve the reference of `__real_f` as `f`  
+
+### Interpositioning at Runtime
+
+Interpositioning at compiletime needs us able to access to the src codes of the program  
+while at linktime, we need to be able to access to the relocatable object files
+
+bug a powerful mechanism allows us to interpose at runtime  
+using witch we only need to access to the exe object file  
+
+the mechanism is based on the `LD_PRELOAD` environment variable of dynamic linker  
+which denotes the `.so` that will be retrieved first  
+we can easy to use this mechanism to interpose any functions in any `.so`  
