@@ -90,6 +90,8 @@ Disassembly of section .text:
     1107:	00 
     1108:	c7 45 f4 01 00 00 00 	movl   $0x1,-0xc(%rbp)
     110f:	eb 0d                	jmp    111e <linear_sum+0x25>
+
+    # loop
     1111:	8b 45 f4             	mov    -0xc(%rbp),%eax
     1114:	48 98                	cltq
     1116:	48 01 45 f8          	add    %rax,-0x8(%rbp)
@@ -97,9 +99,15 @@ Disassembly of section .text:
     111e:	8b 45 f4             	mov    -0xc(%rbp),%eax
     1121:	3b 45 ec             	cmp    -0x14(%rbp),%eax
     1124:	7e eb                	jle    1111 <linear_sum+0x18>
+
+
     1126:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
     112a:	5d                   	pop    %rbp
     112b:	c3                   	ret
+
+# -0x8(%rbp)     8     0           (set sum)    long
+# -0xc(%rbp)     12    1           (set i)      int
+# -0x14(%rbp)    20    input value (set n)      int
 
 000000000000112c <square_sum>:
     112c:	55                   	push   %rbp
@@ -109,6 +117,8 @@ Disassembly of section .text:
     113a:	00 
     113b:	c7 45 f4 01 00 00 00 	movl   $0x1,-0xc(%rbp)
     1142:	eb 10                	jmp    1154 <square_sum+0x28>
+
+    # loop
     1144:	8b 45 f4             	mov    -0xc(%rbp),%eax
     1147:	0f af c0             	imul   %eax,%eax
     114a:	48 98                	cltq
@@ -117,9 +127,15 @@ Disassembly of section .text:
     1154:	8b 45 f4             	mov    -0xc(%rbp),%eax
     1157:	3b 45 ec             	cmp    -0x14(%rbp),%eax
     115a:	7e e8                	jle    1144 <square_sum+0x18>
+
+
     115c:	48 8b 45 f8          	mov    -0x8(%rbp),%rax
     1160:	5d                   	pop    %rbp
     1161:	c3                   	ret
+
+# -0x8(%rbp)     8     0           (set sum)    long
+# -0xc(%rbp)     12    1           (set i)      int
+# -0x14(%rbp)    20    input value (set n)      int
 
 Disassembly of section .fini:
 
