@@ -25,9 +25,10 @@
         - [4.2.1. `exit`](#421-exit)
         - [4.2.2. `fork`](#422-fork)
         - [4.2.3. `waitpid`](#423-waitpid)
-        - [4.2.4. `sleep`](#424-sleep)
+        - [4.2.4. `sleep` and `pause`](#424-sleep-and-pause)
         - [4.2.5. `execve`](#425-execve)
     - [4.3. Use `fork` and `execve` to Run Program](#43-use-fork-and-execve-to-run-program)
+        - [4.3.1. Shell](#431-shell)
 - [5. Signal](#5-signal)
 
 ---
@@ -186,9 +187,13 @@ it is called once but returns twice
 
 to wait subprocesses in many ways  
 
-#### 4.2.4. `sleep`
+#### 4.2.4. `sleep` and `pause`
 
-suspend a process for a specific period of time
+`sleep()` suspend a process for a specific period of time  
+it accepts a param of type `unsigned int` meaning the number of seconds to sleep  
+if it normally returns, it returns 0  
+else it returns the left time(secs) to sleep  
+*this may happen when a signal is received*  
 
 #### 4.2.5. `execve`
 
@@ -210,5 +215,27 @@ unlike `fork`(called once, returns twice)
 it is called once and doesn't return  
 
 ### 4.3. Use `fork` and `execve` to Run Program
+
+Unix shell and Web server uses many `fork` and `execve` to run programs  
+
+#### 4.3.1. Shell
+
+shell is an interactive application-level program  
+which runs other programs on behalf of the user  
+
+includes: `sh`(the earliest shell)  
+and `csh` `tcsh` `ksh` `bash` and so on  
+
+what it dose:  
+execute a series of read/evaluate steps  
+and then terminates  
+
+so how it works:  
+
+1. read a command line  
+2. parse the command line  
+3. run the program  
+
+*if the command line is available*  
 
 ## 5. Signal
