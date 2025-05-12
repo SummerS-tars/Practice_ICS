@@ -30,6 +30,27 @@
     - [4.3. Use `fork` and `execve` to Run Program](#43-use-fork-and-execve-to-run-program)
         - [4.3.1. Shell](#431-shell)
 - [5. Signal](#5-signal)
+    - [Signal Terminology](#signal-terminology)
+        - [pending signal](#pending-signal)
+        - [blocked signal](#blocked-signal)
+        - [Simple Understanding](#simple-understanding)
+    - [Send Signal](#send-signal)
+        - [Process Group](#process-group)
+        - [Use `/bin/kill` to Send Signal](#use-binkill-to-send-signal)
+        - [Send Signals Using Keyboard](#send-signals-using-keyboard)
+        - [Use `kill` Function to Send Signal](#use-kill-function-to-send-signal)
+        - [Use `alarm` Function to Send Signal](#use-alarm-function-to-send-signal)
+    - [Receive Signal](#receive-signal)
+        - [What is Receiving a Signal?](#what-is-receiving-a-signal)
+        - [Signal Handlers](#signal-handlers)
+    - [Block and Unblock Signals](#block-and-unblock-signals)
+    - [Write Signal Handler](#write-signal-handler)
+        - [Safe Signal Handling](#safe-signal-handling)
+        - [Correct Signal Handling](#correct-signal-handling)
+        - [Portable Signal Handling](#portable-signal-handling)
+    - [Synchronizing Flows to Avoid Nasty Concurrency Bugs](#synchronizing-flows-to-avoid-nasty-concurrency-bugs)
+    - [Explicitly Waiting for Signals](#explicitly-waiting-for-signals)
+- [Nonlocal Jumps](#nonlocal-jumps)
 
 ---
 
@@ -238,4 +259,347 @@ so how it works:
 
 *if the command line is available*  
 
+the cmd may be tailed by `&`  
+which means the program will be run in background(bg)  
+*foreground(fg) is the default*  
+
+and it contains some `builtin_commands`  
+which will first be checked by shell  
+it contains some basic cmds like: `cd` `exit` `pwd` `jobs` `fg` and so on
+
+but the simple shell is vulnerable  
+as it doesn't reaped its background processes  
+to solve this problem, we need signals  
+
 ## 5. Signal
+
+to this position  
+we have learned ECF at hardware and software level  
+and OS level  
+
+now we learn a higher level exception at the form of software  
+it is called Linux **signal**  
+which allows processes and kernel to interrupt other processes  
+
+**A signal is a small message**  
+which can notifies a process the occurrence of an event of some type in the system  
+
+**signal types:**  
+every signal belongs to a specific type  
+and every types corresponds to a specific system event  
+Linux supports 30 types of signals  
+
+### Signal Terminology
+
+two procedures to transit a signal to the destination process:  
+
+- [ ] TODO: add details here  
+
+1. send signal  
+    how ?  
+    when ?  
+2. receive signal  
+    means what?  
+    *it actually contains the implicit statement that the signal has been handled*  
+
+#### pending signal
+
+the signal which has been sent but not yet received  
+
+**pending signal is not queued**  
+it means that every signal type can only have one pending signal  
+
+that is to say, if the signal type A of a process has a pending signal  
+the following signal A sent to this process will be discarded  
+
+#### blocked signal
+
+a process can choose to block some types of signals  
+and it can also unblock them  
+
+when a signal type is blocked  
+it can still be sent but will never be received  
+
+#### Simple Understanding
+
+in fact  
+kernel will maintain a set pending signals for each process  
+in the bit vector `pending`  
+
+and the blocked signals  
+in the bit vector `blocked`  
+which is also called `signal mask`  
+
+when sending a signal of the type `k`  
+kernel will set the `k`th bit of the `pending`  
+
+when a process receives a signal of the type `k`  
+then the `k`th bit of the `pending` will be cleared by kernel  
+
+### Send Signal
+
+Unix provides a lot of mechanisms to send signals to processes  
+witch is all based on the concept **process group**(进程组)  
+
+#### Process Group
+
+every process is belonging to one and only one process group  
+which is identified by a positive integer called **process group ID**(进程组ID)  
+
+several important functions:  
+
+- `getpgrp` returns the process group ID of the calling process  
+
+- `setpgid`  
+    receives two parameters: pid(specify the process) and pgid(specify the process group)  
+    if pid is 0, it means the calling process  
+    if pgid is 0, it uses the same pgid as the pid  
+    *so a process's pgid can be its own pid*  
+
+#### Use `/bin/kill` to Send Signal
+
+`/bin/kill` is a built in command in shell  
+
+we can use it to send signals to processes  
+*actually it's not very accurately like what it sounds like(just kill a program)*  
+
+we can use `-L` to list all the signals:  
+
+```txt
+❯ /bin/kill -L
+ 1 HUP      2 INT      3 QUIT     4 ILL      5 TRAP     6 ABRT     7 BUS
+ 8 FPE      9 KILL    10 USR1    11 SEGV    12 USR2    13 PIPE    14 ALRM
+15 TERM    16 STKFLT  17 CHLD    18 CONT    19 STOP    20 TSTP    21 TTIN
+22 TTOU    23 URG     24 XCPU    25 XFSZ    26 VTALRM  27 PROF    28 WINCH
+29 POLL    30 PWR     31 SYS
+```
+
+we can use the cmd as follows:  
+
+```bash
+/bin/kill -s <signal> <pid>
+```
+
+or
+
+```bash
+/bin/kill -<signal> <pid>
+```
+
+can send a signal(of the type in \<signal\>) to a process(of the pid in \<pid\>)  
+the \<signal\> can be a number or a name listed above  
+
+and \<pid\> can be prefixed with `-`  
+meaning that the signal will be sent to all processes in the process group  
+
+#### Send Signals Using Keyboard
+
+Unix shell use the abstraction **job(作业)**  
+to represent a process created by evaluating a command line  
+
+easy to understand:  
+there always are max 1 fg job and 0-many bg jobs  
+
+so if we type the cmd line:  
+
+```bash
+ls | sort
+```
+
+the shell will create a job consists of two processes  
+which are connected by a Unix pipe  
+shell will crate a independent pg for a job  
+which owns the pgid usually taken from the one of the parent processes in the job  
+
+- [ ] TODO: ? what is a Unix pipe?  
+
+other normal signals:  
+
+- `SIGINT`(Ctrl-C)  
+    terminating the fg pg  
+- `SIGTSTP`(Ctrl-Z)
+    suspending the fg pg  
+
+#### Use `kill` Function to Send Signal
+
+`kill()` is included in `signal.h`  
+accepting two parameters:  
+
+1. `pid`  
+    the destination process ID  
+    if it is 0, it means the processes in the calling process group
+    if it is `-pid`, it means the processes in the process group with the ID of `pid`
+2. `sig`  
+    the signal type to be sent  
+    usually use macros defined in `signal.h`  
+
+#### Use `alarm` Function to Send Signal
+
+`alarm()` is included in `unistd.h`  
+
+process can use it to send a `SIGALRM` signal to itself  
+
+it accepts a parameter of type `secs`(unsigned int)  
+with the meaning of the number of seconds to wait  
+
+it also has a return value:  
+new invocation of `alarm` will cancel the previous one(called pending alarm)  
+and return the number of seconds left to wait  
+if there is no pending alarm, it returns 0  
+
+### Receive Signal
+
+- [ ] kernel and user modes are still not clear
+
+when kernel switch process `p` from kernel mode to user mode  
+it will check the unblocked pending signals of `p`  
+*(unblocked pending signals : `pending & ~blocked`)*  
+
+if it is empty, the control passes to the next instruction of `p`  
+else, the first(means the smallest) signal in the unblocked pending signals will be received by `p`  
+*the reception is forced and unstoppable*  
+
+#### What is Receiving a Signal?
+
+Receiving a signal means `P` will take some actions  
+when the actions are finished, control passes to the next instruction of `p`  
+
+every signal type has a default action  
+which in one of the following four:  
+
+- terminate process  
+- terminate process and core dump  
+- suspend process and wait for `SIGCONT` signal to continue  
+- ignore the signal  
+
+we said these are default actions  
+so we means it may be changed by the process  
+
+#### Signal Handlers
+
+we can use `signal` function to change the default action of a signal  
+it is included in `signal.h`  
+and has the following prototype:  
+
+```c
+sighandler_t signal(int signum, sighandler_t handler);
+```
+
+- `signum` : the signal type to be changed  
+- `handler` : the new action to be taken  
+    - `SIG_IGN` : ignore the signal  
+    - `SIG_DFL` : use the default action  
+    - `handler` : a pointer to a function witch will be called when the signal is received  
+        - the function should have the following prototype:  
+
+            ```c
+            void handler(int signum);
+            ```
+
+            which can be pointed by `sighandler_t`  
+
+            ```c
+            typedef void (*sighandler_t)(int);
+            ```
+
+**attention: the default action of `SIGSTOP` and `SIGKILL` can't be modified**  
+
+and the signal handling can be nested  
+but there is a limitation:  
+one signal type's handler can only be called once  
+*(in other words, the handler can not be recursive)*  
+
+for example:  
+
+if a signal type `k` is received  
+and the handler for `k` is called  
+then the signal type `k` will be blocked  
+until the handler for `k` is finished  
+
+but it may be interrupted by other signals  
+like another signal type `m`  
+and the handler for `m` will be called  
+
+then the flow is belike:  
+
+```mermaid
+sequenceDiagram
+    participant A as main program
+    participant B as handler K
+    participant C as handler M
+    note left of A: current instruction
+    A->>B: program catches signal k
+    note over A,B: control passes to handler K
+    B->>C: program catches signal m
+    note over B,C: control passes to handler M
+    C->>B: return
+    note over B,C: control passes back to handler K
+    B->>A: return
+    note over A,B: control passes back to main program
+    note left of A: next instruction
+```
+
+### Block and Unblock Signals
+
+implicit block mechanism:  
+the signal witch is under handling is blocked by the kernel  
+
+explicit block mechanism:  
+we can use `sigprocmask` and some other functions to specifically block or unblock signals  
+
+- [ ] TODO:
+
+### Write Signal Handler
+
+this is actually a very complicated problem  
+
+handlers have some properties, which make them hard to write and analyze:  
+
+1. handlers share the same global variables with the main program  
+    this may cause interference between the main program and other handlers  
+2. the rule about how and when receive a signal may be confusing  
+3. different systems may have different implementations of signal handling  
+
+so we talk about some basic rules  
+to write a safe, correct and portable signal handler:  
+
+- [ ] TODO:  
+
+#### Safe Signal Handling
+
+#### Correct Signal Handling
+
+the most important one property of signal is:  
+**signal is not queued!**  
+
+this may be very confusing  
+
+the thing we should remember is:  
+don't use signal to count events in other processes  
+
+#### Portable Signal Handling
+
+`sigaction`  
+
+`Signal` wrapper function  
+
+### Synchronizing Flows to Avoid Nasty Concurrency Bugs
+
+race  
+which may come from the fact that  
+the subprocess may not strictly run after the parent process  
+
+### Explicitly Waiting for Signals
+
+`sigsuspend`  
+
+## Nonlocal Jumps
+
+C provides a user level ECF form  
+called **nonlocal jump**(非本地跳转)  
+
+nonlocal jump let control directly pass  
+from one function to another executing function  
+without normally call-return sequence  
+
+we use `setjmp` and `longjmp` to implement it  
