@@ -22,13 +22,13 @@
 - [4. Process Control(进程控制)](#4-process-control进程控制)
     - [4.1. Get Process ID](#41-get-process-id)
     - [4.2. Create and Terminate Process](#42-create-and-terminate-process)
-        - [`exit`](#exit)
-        - [`fork`](#fork)
-        - [`waitpid`](#waitpid)
-        - [`sleep`](#sleep)
-        - [`execve`](#execve)
-    - [Use `fork` and `execve` to Run Program](#use-fork-and-execve-to-run-program)
-- [Signal](#signal)
+        - [4.2.1. `exit`](#421-exit)
+        - [4.2.2. `fork`](#422-fork)
+        - [4.2.3. `waitpid`](#423-waitpid)
+        - [4.2.4. `sleep`](#424-sleep)
+        - [4.2.5. `execve`](#425-execve)
+    - [4.3. Use `fork` and `execve` to Run Program](#43-use-fork-and-execve-to-run-program)
+- [5. Signal](#5-signal)
 
 ---
 
@@ -145,7 +145,7 @@ We can regard that a process is always in one status of the three types below:
     2. return from main program  
     3. `exit` function is called  
 
-#### `exit`
+#### 4.2.1. `exit`
 
 as mentioned above, it is a function to terminate a process  
 
@@ -160,7 +160,7 @@ void exit(int status)
 `exit` function uses `status` exit status to terminate the process  
 *another way is to return a int type value in main program*  
 
-#### `fork`
+#### 4.2.2. `fork`
 
 it's a function used by parent process to create a new running subprocess  
 with a return value in the `pid_t` type  
@@ -182,15 +182,15 @@ it is called once but returns twice
 
 - [ ] more details to be added here
 
-#### `waitpid`
+#### 4.2.3. `waitpid`
 
 to wait subprocesses in many ways  
 
-#### `sleep`
+#### 4.2.4. `sleep`
 
 suspend a process for a specific period of time
 
-#### `execve`
+#### 4.2.5. `execve`
 
 load and run program  
 
@@ -209,6 +209,6 @@ only when error happens it will return to caller program
 unlike `fork`(called once, returns twice)  
 it is called once and doesn't return  
 
-### Use `fork` and `execve` to Run Program
+### 4.3. Use `fork` and `execve` to Run Program
 
-## Signal
+## 5. Signal
