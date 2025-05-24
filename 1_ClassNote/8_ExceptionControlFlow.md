@@ -30,27 +30,27 @@
     - [4.3. Use `fork` and `execve` to Run Program](#43-use-fork-and-execve-to-run-program)
         - [4.3.1. Shell](#431-shell)
 - [5. Signal](#5-signal)
-    - [Signal Terminology](#signal-terminology)
-        - [pending signal](#pending-signal)
-        - [blocked signal](#blocked-signal)
-        - [Simple Understanding](#simple-understanding)
-    - [Send Signal](#send-signal)
-        - [Process Group](#process-group)
-        - [Use `/bin/kill` to Send Signal](#use-binkill-to-send-signal)
-        - [Send Signals Using Keyboard](#send-signals-using-keyboard)
-        - [Use `kill` Function to Send Signal](#use-kill-function-to-send-signal)
-        - [Use `alarm` Function to Send Signal](#use-alarm-function-to-send-signal)
-    - [Receive Signal](#receive-signal)
-        - [What is Receiving a Signal?](#what-is-receiving-a-signal)
-        - [Signal Handlers](#signal-handlers)
-    - [Block and Unblock Signals](#block-and-unblock-signals)
-    - [Write Signal Handler](#write-signal-handler)
-        - [Safe Signal Handling](#safe-signal-handling)
-        - [Correct Signal Handling](#correct-signal-handling)
-        - [Portable Signal Handling](#portable-signal-handling)
-    - [Synchronizing Flows to Avoid Nasty Concurrency Bugs](#synchronizing-flows-to-avoid-nasty-concurrency-bugs)
-    - [Explicitly Waiting for Signals](#explicitly-waiting-for-signals)
-- [Nonlocal Jumps](#nonlocal-jumps)
+    - [5.1. Signal Terminology](#51-signal-terminology)
+        - [5.1.1. pending signal](#511-pending-signal)
+        - [5.1.2. blocked signal](#512-blocked-signal)
+        - [5.1.3. Simple Understanding](#513-simple-understanding)
+    - [5.2. Send Signal](#52-send-signal)
+        - [5.2.1. Process Group](#521-process-group)
+        - [5.2.2. Use `/bin/kill` to Send Signal](#522-use-binkill-to-send-signal)
+        - [5.2.3. Send Signals Using Keyboard](#523-send-signals-using-keyboard)
+        - [5.2.4. Use `kill` Function to Send Signal](#524-use-kill-function-to-send-signal)
+        - [5.2.5. Use `alarm` Function to Send Signal](#525-use-alarm-function-to-send-signal)
+    - [5.3. Receive Signal](#53-receive-signal)
+        - [5.3.1. What is Receiving a Signal?](#531-what-is-receiving-a-signal)
+        - [5.3.2. Signal Handlers](#532-signal-handlers)
+    - [5.4. Block and Unblock Signals](#54-block-and-unblock-signals)
+    - [5.5. Write Signal Handler](#55-write-signal-handler)
+        - [5.5.1. Safe Signal Handling](#551-safe-signal-handling)
+        - [5.5.2. Correct Signal Handling](#552-correct-signal-handling)
+        - [5.5.3. Portable Signal Handling](#553-portable-signal-handling)
+    - [5.6. Synchronizing Flows to Avoid Nasty Concurrency Bugs](#56-synchronizing-flows-to-avoid-nasty-concurrency-bugs)
+    - [5.7. Explicitly Waiting for Signals](#57-explicitly-waiting-for-signals)
+- [6. Nonlocal Jumps](#6-nonlocal-jumps)
 
 ---
 
@@ -289,7 +289,7 @@ every signal belongs to a specific type
 and every types corresponds to a specific system event  
 Linux supports 30 types of signals  
 
-### Signal Terminology
+### 5.1. Signal Terminology
 
 two procedures to transit a signal to the destination process:  
 
@@ -302,7 +302,7 @@ two procedures to transit a signal to the destination process:
     means what?  
     *it actually contains the implicit statement that the signal has been handled*  
 
-#### pending signal
+#### 5.1.1. pending signal
 
 the signal which has been sent but not yet received  
 
@@ -312,7 +312,7 @@ it means that every signal type can only have one pending signal
 that is to say, if the signal type A of a process has a pending signal  
 the following signal A sent to this process will be discarded  
 
-#### blocked signal
+#### 5.1.2. blocked signal
 
 a process can choose to block some types of signals  
 and it can also unblock them  
@@ -320,7 +320,7 @@ and it can also unblock them
 when a signal type is blocked  
 it can still be sent but will never be received  
 
-#### Simple Understanding
+#### 5.1.3. Simple Understanding
 
 in fact  
 kernel will maintain a set pending signals for each process  
@@ -336,12 +336,12 @@ kernel will set the `k`th bit of the `pending`
 when a process receives a signal of the type `k`  
 then the `k`th bit of the `pending` will be cleared by kernel  
 
-### Send Signal
+### 5.2. Send Signal
 
 Unix provides a lot of mechanisms to send signals to processes  
 witch is all based on the concept **process group**(进程组)  
 
-#### Process Group
+#### 5.2.1. Process Group
 
 every process is belonging to one and only one process group  
 which is identified by a positive integer called **process group ID**(进程组ID)  
@@ -356,7 +356,7 @@ several important functions:
     if pgid is 0, it uses the same pgid as the pid  
     *so a process's pgid can be its own pid*  
 
-#### Use `/bin/kill` to Send Signal
+#### 5.2.2. Use `/bin/kill` to Send Signal
 
 `/bin/kill` is a built in command in shell  
 
@@ -392,7 +392,7 @@ the \<signal\> can be a number or a name listed above
 and \<pid\> can be prefixed with `-`  
 meaning that the signal will be sent to all processes in the process group  
 
-#### Send Signals Using Keyboard
+#### 5.2.3. Send Signals Using Keyboard
 
 Unix shell use the abstraction **job(作业)**  
 to represent a process created by evaluating a command line  
@@ -420,7 +420,7 @@ other normal signals:
 - `SIGTSTP`(Ctrl-Z)
     suspending the fg pg  
 
-#### Use `kill` Function to Send Signal
+#### 5.2.4. Use `kill` Function to Send Signal
 
 `kill()` is included in `signal.h`  
 accepting two parameters:  
@@ -433,7 +433,7 @@ accepting two parameters:
     the signal type to be sent  
     usually use macros defined in `signal.h`  
 
-#### Use `alarm` Function to Send Signal
+#### 5.2.5. Use `alarm` Function to Send Signal
 
 `alarm()` is included in `unistd.h`  
 
@@ -447,7 +447,7 @@ new invocation of `alarm` will cancel the previous one(called pending alarm)
 and return the number of seconds left to wait  
 if there is no pending alarm, it returns 0  
 
-### Receive Signal
+### 5.3. Receive Signal
 
 - [ ] kernel and user modes are still not clear
 
@@ -459,7 +459,7 @@ if it is empty, the control passes to the next instruction of `p`
 else, the first(means the smallest) signal in the unblocked pending signals will be received by `p`  
 *the reception is forced and unstoppable*  
 
-#### What is Receiving a Signal?
+#### 5.3.1. What is Receiving a Signal?
 
 Receiving a signal means `P` will take some actions  
 when the actions are finished, control passes to the next instruction of `p`  
@@ -475,7 +475,7 @@ which in one of the following four:
 we said these are default actions  
 so we means it may be changed by the process  
 
-#### Signal Handlers
+#### 5.3.2. Signal Handlers
 
 we can use `signal` function to change the default action of a signal  
 it is included in `signal.h`  
@@ -539,7 +539,7 @@ sequenceDiagram
     note left of A: next instruction
 ```
 
-### Block and Unblock Signals
+### 5.4. Block and Unblock Signals
 
 implicit block mechanism:  
 the signal witch is under handling is blocked by the kernel  
@@ -549,7 +549,7 @@ we can use `sigprocmask` and some other functions to specifically block or unblo
 
 - [ ] TODO:
 
-### Write Signal Handler
+### 5.5. Write Signal Handler
 
 this is actually a very complicated problem  
 
@@ -565,35 +565,68 @@ to write a safe, correct and portable signal handler:
 
 - [ ] TODO:  
 
-#### Safe Signal Handling
+#### 5.5.1. Safe Signal Handling
 
-#### Correct Signal Handling
+Guidelines:  
+
+G0: Keep handlers as simple as possible  
+G1: Call only async-signal-safe functions in handlers  
+G2: Save and restore errno on entry and exit  
+G3: Protect accesses to shared data structures by temporarily blocking all signals  
+G4: Declare global variables as `volatile`  
+    make sure they will never be stored in registers  
+G5: Declare global flags as `volatile sig_atomic_t`  
+    system guarantees that reads and writes to it will be atomic  
+    which means the action is uninterruptible  
+
+#### 5.5.2. Correct Signal Handling
 
 the most important one property of signal is:  
 **signal is not queued!**  
 
+and another important one is:  
+**process may run at an arbitrary order**  
+
 this may be very confusing  
 
 the thing we should remember is:  
-don't use signal to count events in other processes  
+don't attempt use signal to count events in other processes  
+don't attempt to suppose the order of processes  
+don't attempt to suppose the time consumption of processes  
 
-#### Portable Signal Handling
+what we can control is when to handle the signal  
+because we can block signals  
+
+so we should take any possible point  
+that may be interrupted by a signal  
+
+#### 5.5.3. Portable Signal Handling
 
 `sigaction`  
 
 `Signal` wrapper function  
 
-### Synchronizing Flows to Avoid Nasty Concurrency Bugs
+### 5.6. Synchronizing Flows to Avoid Nasty Concurrency Bugs
 
 race  
 which may come from the fact that  
 the subprocess may not strictly run after the parent process  
 
-### Explicitly Waiting for Signals
+### 5.7. Explicitly Waiting for Signals
 
-`sigsuspend`  
+`sigsuspend` can be used to wait for a signal  
+it accepts a parameter of type `sigset_t`  
+denoting the blocked signals  
 
-## Nonlocal Jumps
+it is like a unstoppable version of following code:  
+
+```c
+sigprocmask(SIG_BLOCK, &mask, &prev);
+pause();
+sigprocmask(SIG_SETMASK, &prev, NULL);
+```
+
+## 6. Nonlocal Jumps
 
 C provides a user level ECF form  
 called **nonlocal jump**(非本地跳转)  

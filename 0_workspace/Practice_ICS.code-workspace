@@ -84,7 +84,12 @@
 		"files.associations": {
 			"limits.h": "c",
 			"syslimits.h": "c",
-			"stdlib.h": "c"
+			"stdlib.h": "c",
+			"wait.h": "c",
+			"types.h": "c",
+			"signal.h": "c",
+			"sigset_t.h": "c",
+			"stdio.h": "c"
 		},
 		"cSpell.enabledFileTypes": {
 			"asm-collection": false
