@@ -50,10 +50,13 @@ and how to use and manage it in our programs
 - [3. VM as a Tool for Caching](#3-vm-as-a-tool-for-caching)
     - [3.1. DRAM Cache Hierarchy](#31-dram-cache-hierarchy)
     - [3.2. Page Table(页表)](#32-page-table页表)
-    - [3.3. Page Hits(页命中)](#33-page-hits页命中)
-    - [3.4. Page Faults(缺页)](#34-page-faults缺页)
-    - [3.5. Allocating Page](#35-allocating-page)
-    - [3.6. Locality Rescue](#36-locality-rescue)
+    - [3.3. PT(页表)](#33-pt页表)
+        - [3.3.1. PTE(页表条目)](#331-pte页表条目)
+        - [3.3.2. Working Principles](#332-working-principles)
+    - [3.4. Page Hits(页命中)](#34-page-hits页命中)
+    - [3.5. Page Faults(缺页)](#35-page-faults缺页)
+    - [3.6. Allocating Page](#36-allocating-page)
+    - [3.7. Locality Rescue](#37-locality-rescue)
 - [4. VM as a Tool for Memory Management](#4-vm-as-a-tool-for-memory-management)
 - [5. VM as a Tool for Memory Protection](#5-vm-as-a-tool-for-memory-protection)
 - [6. Address Translation(地址翻译)](#6-address-translation地址翻译)
@@ -162,15 +165,95 @@ uncached pages can be found in the disk but not in the main memory
 
 ### 3.1. DRAM Cache Hierarchy
 
+we need to know briefly about the Cache Hierarchy in the CS  
+
+in Modern CS, there are usually L1, L2 and L3 caches  
+which are between the CPU and the main memory  
+we call them **SRAM**  
+and the main memory is **DRAM**  
+
+**SRAM** is 10 times faster than **DRAM**  
+while **DRAM** is almost 100000 times faster than the disk  
+so if we don't hit the cache in the DRAM  
+it will cost a lot of time to access the disk  
+we can call it punishment  
+
+so we decide to access larger data block once so that  
+the possibility of missing the cache can be reduced  
+this is the page  
+which usually takes 4KB~2MB in size, very large  
+
+and this is related to more conventional algorithms  
+we don't mention here  
+
+we just need to know that  
+the DRAM cache hierarchy is driven by the need to reduce the penalty  
+
 ### 3.2. Page Table(页表)
 
-### 3.3. Page Hits(页命中)
+VM system needs a way to judge whether a VP iss cached in somewhere in the DRAM  
+if it is, which PP is it cached in?  
+otherwise, it should choose a PP as sacrifice to cache the VP  
 
-### 3.4. Page Faults(缺页)
+### 3.3. PT(页表)
 
-### 3.5. Allocating Page
+we use a data structure called **page table** to do this  
+which is stored in physical memory  
 
-### 3.6. Locality Rescue
+#### 3.3.1. PTE(页表条目)
+
+PT is actually an array of **PTE(page table entry)**  
+which projects the VP to the corresponding PP  
+
+#### 3.3.2. Working Principles
+
+every VP has a PTE in the PT at the fixed offset position  
+so the order the PTE in PT actually implies it's corresponding VP  
+
+how to understand PTE?  
+we can have a understanding now as below  
+every PTE constructed by:  
+
+1. 1 valid bit  
+    which indicates whether the VP is cached in the DRAM  
+    *in other words, if is 0: 1. the VP is uncached; 2. the VP is unallocated*  
+2. n bits of address  
+    which indicates the VPN(virtual page number)  
+    or the address of data on the disk  
+    *if valid bit not set, null means unallocated, or it's the address of the data on the disk*  
+
+### 3.4. Page Hits(页命中)
+
+if the CPU want to access a word in some VP(e.g. VP 2)  
+*the address translation hardware can use the VA to locate the PTE2*  
+and the VP 2 is cached in the DRAM  
+*valid bit set to 1*  
+then the hardware can use the address in the PTE to construct the PA  
+
+*here the details are not mentioned*  
+*we'll talk about it later*  
+
+### 3.5. Page Faults(缺页)
+
+just take the above example,  
+suppose that the data in VP 2 is not cached  
+*valid bit set to 0*  
+then the hardware will raise a **page fault exception**  
+
+this will call the handler in the kernel  
+which will choose a sacrificial PP(e.g. PP 1) to cache the VP 2  
+if there is a VP(e.g. VP 4) cached in PP 1, VP 4 will be write back to disk at first  
+*don't forget the PTE 4 will also be modified here*  
+and then the VP 2 will be copied from the corresponding disk address to the PP 1  
+after that, the PTE2 will be updated  
+
+then kernel will pass control back to the user program  
+the instruction that caused the page fault will be restarted  
+now it can hit the page required  
+
+### 3.6. Allocating Page
+
+### 3.7. Locality Rescue
 
 ## 4. VM as a Tool for Memory Management
 
