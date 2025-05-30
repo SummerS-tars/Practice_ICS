@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/types.h>
-#include <wait.h>
+#include <sys/wait.h>
 #include <errno.h>
 
 volatile sig_atomic_t pid;
