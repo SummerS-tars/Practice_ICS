@@ -1,0 +1,268 @@
+# Makefile for File Reading Comparison Programs
+# ICS Course - Week 15 - Exercise 11 - Part 2
+
+CC = gcc
+CFLAGS = -Wall -Wextra -g -std=c99
+TARGETS = MMapRead SyscallRead
+
+# Default target
+all: $(TARGETS)
+
+# Individual targets
+MMapRead: MMapRead.c
+	$(CC) $(CFLAGS) -o $@ $^
+
+SyscallRead: SyscallRead.c
+	$(CC) $(CFLAGS) -o $@ $^
+
+# Clean target
+clean:
+	rm -f $(TARGETS)
+
+# Run targets for testing
+run-mmap: MMapRead
+	@echo "=== Running Memory-Mapped File Reading ==="
+	@echo "Reading file contents using mmap() system call"
+	@echo ""
+	./MMapRead
+
+run-syscall: SyscallRead
+	@echo "=== Running Standard Library File Reading ==="
+	@echo "Reading file contents using fread() library function"
+	@echo ""
+	./SyscallRead
+
+run-both: $(TARGETS)
+	@echo "=== Comparing File Reading Methods ==="
+	@echo ""
+	@echo "1. Memory-mapped file reading (mmap):"
+	@echo "----------------------------------------"
+	./MMapRead
+	@echo ""
+	@echo "2. Standard library file reading (fread):"
+	@echo "----------------------------------------"
+	./SyscallRead
+	@echo ""
+	@echo "=== Comparison Complete ==="
+
+# Performance comparison
+run-performance: $(TARGETS)
+	@echo "=== 精细性能比较分析 ==="
+	@echo "运行多文件大小、多次迭代的详细性能测试..."
+	@echo ""
+	@if [ ! -f performance_test.sh ]; then \
+		echo "性能测试脚本不存在，正在创建..."; \
+		$(MAKE) create-perf-script; \
+	fi
+	@if [ ! -x performance_test.sh ]; then \
+		echo "设置脚本执行权限..."; \
+		chmod +x performance_test.sh; \
+	fi
+	@./performance_test.sh
+
+# Quick performance test
+run-quick-perf: $(TARGETS)
+	@echo "=== 快速性能对比测试 ==="
+	@echo "使用当前 text.txt 进行简单的性能对比..."
+	@echo ""
+	@echo "测试 mmap 方法 (10次):"
+	@for i in $$(seq 1 10); do \
+		/usr/bin/time -f "第$$i次: %e 秒" ./MMapRead > /dev/null 2>&1; \
+	done
+	@echo ""
+	@echo "测试 syscall 方法 (10次):"
+	@for i in $$(seq 1 10); do \
+		/usr/bin/time -f "第$$i次: %e 秒" ./SyscallRead > /dev/null 2>&1; \
+	done
+
+# Create performance test script
+create-perf-script:
+	@echo "创建性能测试脚本..."
+	@cat > performance_test.sh << 'EOF'
+#!/bin/bash
+
+echo "=== 精细性能测试脚本 ==="
+
+# 创建不同大小的测试文件
+create_test_files() {
+    echo "创建测试文件..."
+    
+    # 小文件 (1KB)
+    head -c 1024 /dev/urandom | base64 > test_1kb.txt
+    echo "✓ 创建 1KB 测试文件"
+    
+    # 中等文件 (100KB)
+    head -c 102400 /dev/urandom | base64 > test_100kb.txt
+    echo "✓ 创建 100KB 测试文件"
+    
+    # 大文件 (5MB)
+    head -c 5242880 /dev/urandom | base64 > test_5mb.txt
+    echo "✓ 创建 5MB 测试文件"
+    echo ""
+}
+
+# 运行性能测试
+run_benchmark() {
+    local file_size=$$1
+    local test_file=$$2
+    local iterations=$$3
+    
+    echo "测试文件: $$test_file ($$file_size)"
+    echo "迭代次数: $$iterations"
+    echo "----------------------------------------"
+    
+    # 备份原始文件
+    cp text.txt text.txt.backup 2>/dev/null || true
+    cp $$test_file text.txt
+    
+    # 测试 mmap 方法
+    echo "测试 mmap 方法..."
+    mmap_total=0
+    for i in $$(seq 1 $$iterations); do
+        start_time=$$(date +%s.%N)
+        ./MMapRead > /dev/null 2>&1
+        end_time=$$(date +%s.%N)
+        duration=$$(echo "$$end_time - $$start_time" | bc -l)
+        mmap_total=$$(echo "$$mmap_total + $$duration" | bc -l)
+        printf "  第 %d 次: %.6f 秒\n" $$i $$duration
+    done
+    mmap_avg=$$(echo "scale=6; $$mmap_total / $$iterations" | bc -l)
+    
+    # 测试 syscall 方法
+    echo "测试 syscall 方法..."
+    syscall_total=0
+    for i in $$(seq 1 $$iterations); do
+        start_time=$$(date +%s.%N)
+        ./SyscallRead > /dev/null 2>&1
+        end_time=$$(date +%s.%N)
+        duration=$$(echo "$$end_time - $$start_time" | bc -l)
+        syscall_total=$$(echo "$$syscall_total + $$duration" | bc -l)
+        printf "  第 %d 次: %.6f 秒\n" $$i $$duration
+    done
+    syscall_avg=$$(echo "scale=6; $$syscall_total / $$iterations" | bc -l)
+    
+    # 性能比较
+    echo ""
+    echo "📊 性能比较分析:"
+    printf "   mmap 平均:    %.6f 秒\n" $$mmap_avg
+    printf "   syscall 平均: %.6f 秒\n" $$syscall_avg
+    
+    ratio=$$(echo "scale=2; $$syscall_avg / $$mmap_avg" | bc -l)
+    percentage=$$(echo "scale=1; ($$syscall_avg - $$mmap_avg) / $$mmap_avg * 100" | bc -l)
+    
+    printf "   性能比值:     %.2f (syscall/mmap)\n" $$ratio
+    if (( $$(echo "$$percentage > 0" | bc -l) )); then
+        printf "   性能差异:     syscall 比 mmap 慢 %.1f%%\n" $$percentage
+    else
+        abs_percentage=$$(echo "scale=1; -1 * $$percentage" | bc -l)
+        printf "   性能差异:     syscall 比 mmap 快 %.1f%%\n" $$abs_percentage
+    fi
+    
+    # 恢复原始文件
+    cp text.txt.backup text.txt 2>/dev/null || echo "Hello World! It'\''s a text file." > text.txt
+    echo ""
+}
+
+# 系统信息
+show_system_info() {
+    echo "=== 系统信息 ==="
+    echo "CPU信息: $$(grep '\''model name'\'' /proc/cpuinfo | head -1 | cut -d'\'':'\'' -f2 | xargs)"
+    echo "内存信息: $$(free -h | grep '\''^Mem:'\'' | awk '\''{print $$2}'\'')"
+    echo "文件系统: $$(df -T . | tail -1 | awk '\''{print $$2}'\'')"
+    echo "内核版本: $$(uname -r)"
+    echo ""
+}
+
+# 清理测试文件
+cleanup() {
+    echo "清理测试文件..."
+    rm -f test_1kb.txt test_100kb.txt test_5mb.txt text.txt.backup
+    echo "清理完成"
+}
+
+# 主函数
+main() {
+    show_system_info
+    create_test_files
+    
+    echo "=== 开始性能测试 ==="
+    echo ""
+    
+    # 不同文件大小的测试
+    run_benchmark "1KB" "test_1kb.txt" 5
+    run_benchmark "100KB" "test_100kb.txt" 5
+    run_benchmark "5MB" "test_5mb.txt" 3
+    
+    echo "=== 性能测试完成 ==="
+    echo ""
+    echo "🎯 测试结论:"
+    echo "• 对于小文件(1KB)，两种方法性能相近"
+    echo "• 对于大文件(5MB)，mmap 通常显示出优势"
+    echo "• mmap 避免了用户空间和内核空间的数据拷贝"
+    echo "• 实际性能取决于文件大小、系统负载和硬件配置"
+    
+    cleanup
+}
+
+# 检查依赖
+if ! command -v bc &> /dev/null; then
+    echo "错误: 需要安装 bc 计算器"
+    echo "请运行: sudo apt-get install bc"
+    exit 1
+fi
+
+main
+EOF
+	@chmod +x performance_test.sh
+	@echo "✓ 性能测试脚本创建完成"
+
+# Clean performance test files
+clean-perf:
+	@echo "清理性能测试相关文件..."
+	@rm -f test_*.txt text.txt.backup performance_test.sh
+	@echo "✓ 性能测试文件清理完成"
+
+# Clean all (including performance files)
+clean-all: clean clean-perf
+	@echo "✓ 所有文件清理完成"
+
+# Check file status
+check-file:
+	@echo "=== File Information ==="
+	@if [ -f text.txt ]; then \
+		echo "File: text.txt"; \
+		echo "Size: $$(stat -c%s text.txt) bytes"; \
+		echo "Content:"; \
+		cat text.txt; \
+	else \
+		echo "Error: text.txt not found!"; \
+		echo "Creating sample text file..."; \
+		echo "Hello World! It's a text file." > text.txt; \
+		echo "Sample file created."; \
+	fi
+
+# Help target
+help:
+	@echo "Available targets:"
+	@echo "  all              - Build all programs"
+	@echo "  clean            - Remove compiled programs"
+	@echo "  clean-perf       - Remove performance test files"
+	@echo "  clean-all        - Remove all generated files"
+	@echo "  run-mmap         - Run the memory-mapped file reading program"
+	@echo "  run-syscall      - Run the standard library file reading program"
+	@echo "  run-both         - Run both programs for comparison"
+	@echo "  run-performance  - 进行精细的性能比较分析（多文件大小、多次测试）"
+	@echo "  run-quick-perf   - 快速性能对比测试（使用当前文件）"
+	@echo "  create-perf-script - 创建性能测试脚本"
+	@echo "  check-file       - Check if text.txt exists and show its content"
+	@echo ""
+	@echo "Programs:"
+	@echo "  MMapRead         - Demonstrates file reading using mmap() system call"
+	@echo "  SyscallRead      - Demonstrates file reading using fread() library function"
+	@echo ""
+	@echo "Educational Focus:"
+	@echo "  - Memory-mapped I/O vs. traditional I/O"
+	@echo "  - Virtual memory concepts from CSAPP"
+	@echo "  - System call interfaces"
+
+.PHONY: all clean clean-perf clean-all run-mmap run-syscall run-both run-performance run-quick-perf create-perf-script check-file help
