@@ -70,6 +70,25 @@ and how to use and manage it in our programs
         - [6.5.1. Why We Need Multilevel PT](#651-why-we-need-multilevel-pt)
         - [6.5.2. Example](#652-example)
         - [6.5.3. Work Principle](#653-work-principle)
+        - [6.5.4. An Example in Overall View](#654-an-example-in-overall-view)
+- [7. Example Analysis: Intel Core i7/Linux Memory System](#7-example-analysis-intel-core-i7linux-memory-system)
+    - [7.1. Core i7 AT](#71-core-i7-at)
+    - [7.2. Linux VM System](#72-linux-vm-system)
+        - [7.2.1. Linux VM Region](#721-linux-vm-region)
+        - [7.2.2. Linux PF Exception Handler](#722-linux-pf-exception-handler)
+- [8. Memory Mapping](#8-memory-mapping)
+    - [8.1. Review Shared Object](#81-review-shared-object)
+    - [8.2. Review `fork` Function](#82-review-fork-function)
+    - [8.3. Review `execve` Function](#83-review-execve-function)
+    - [8.4. Use `mmap` Function to Do User-Level MM](#84-use-mmap-function-to-do-user-level-mm)
+- [9. Dynamic Memory Allocation](#9-dynamic-memory-allocation)
+    - [9.1. `malloc` and `free` Function](#91-malloc-and-free-function)
+    - [9.2. Why We Need Dynamic Memory Allocation](#92-why-we-need-dynamic-memory-allocation)
+    - [9.3. Allocator's Requirements and Objects](#93-allocators-requirements-and-objects)
+    - [9.4. Fragmentation(碎片)](#94-fragmentation碎片)
+    - [9.5. Realization Problem](#95-realization-problem)
+    - [9.6. Implicit Free Linked List](#96-implicit-free-linked-list)
+    - [9.7. Putting Allocated Blocks](#97-putting-allocated-blocks)
 
 ---
 
@@ -453,8 +472,8 @@ components of VA:
 | ------ | --------------------------------------- |
 | VPO    | offset(byte) of the VP                  |
 | VPN    | virtual page number                     |
-| TLB    | TLB(translation lookaside buffer) index |
-| TLB    | TLB tag                                 |
+| TLBI   | TLB(translation lookaside buffer) index |
+| TLBT   | TLB tag                                 |
 
 $n$ bits VP consists of two parts:  
 
@@ -462,6 +481,9 @@ $n$ bits VP consists of two parts:
     *locate the data in the VP*  
 2. $(n-p)$ bits VPN  
     *locate the PTE of the VP*  
+3. VPN is divided into TLBT and TLBI  
+    which will be used to index the TLB  
+    they will be mentioned later  
 
 components of PA:  
 
@@ -605,7 +627,27 @@ many systems still try to speed up the process
 so a cache called TLB is introduced to the MMU  
 
 TLB(Translation Lookaside Buffer, 翻译旁路缓冲/翻译后备缓冲器)  
-is a small and virtual location cache  
+is a small and virtual addressing cache  
+every line of which stores a block containing a PTE  
+*this PTE is the last level PT's PTE which points to the PA of the page, and then with this and VPO, the MMU can get the PA of the data*  
+
+we have mentioned above that VPN is divided into two parts:  
+
+1. TLBI  
+    lower $t$ bits of VPN  
+2. TLBT  
+    the rest of VPN  
+
+before try to find the PTE in the SRAM/DRAM  
+the MMU will first try to find the PTE in the TLB using the VA('s VPN)  
+
+the TLBI is used to locate the set of the TLB  
+and the TLBT is to match the PTEs in the set  
+if the matching is successful, the MMU can get the PPN from the PTE  
+else the MMU has to retrieve the PTE from the SRAM/DRAM  
+
+*how many PTEs in every set?*  
+*4 lines every set TLB is called to be 4-way associative(四路组相联) TLB*  
 
 ### 6.5. Multilevel Page Table
 
@@ -664,3 +706,102 @@ the PPO is the same with the VPO
 we may think this may slow down the AT  
 but TLB can help  
 so it's not much slower then the single level PT system  
+
+#### 6.5.4. An Example in Overall View
+
+suppose there is a little system:
+
+1. memory use byte to address  
+2. every memory access is 1 byte  
+3. VA is 14 bits long  
+4. PA is 12 bits long  
+5. page size is 64 bytes  
+6. TLB: 4-way associative, totally 16 lines  
+7. L1 d-cache: physical addressing, directly mapping, 4 bytes line size, totally 16 sets  
+
+so totally :  
+
+1. $N = 2^{14}$ VA  
+2. $M = 2^{12}$ PA  
+3. $VN = 2^{14} / 64 = 2^{8}$ virtual page number  
+4. $PN = 2^{12} / 64 = 2^6$ physical page number  
+
+so in the VA:  
+
+| VPN    | VPO    |
+| ------ | ------ |
+| 8 bits | 6 bits |
+
+in the PA:  
+
+| PPN    | PPO    |
+| ------ | ------ |
+| 6 bits | 6 bits |
+
+in the TLB:  
+
+| TLBT   | PPN    | Valid |
+| ------ | ------ | ----- |
+| 4 bits | 6 bits | 1 bit |
+
+in the L1 d-cache:  
+
+| CT     | Valid | B0  | B1  | B2  | B3  |
+| ------ | ----- | --- | --- | --- | --- |
+| 4 bits | 1 bit |     |     |     |     |
+
+- CT: cache tag  
+- CI: cache index  
+
+Conclusion:  
+
+Overall process is that  
+
+1. CPU need the data in the VA $A_v$  
+2. MMU try all ways to get the PA $A_p$  
+    1. first try TLB  
+    2. then try SRAM  
+    3. then try DRAM  
+        1. PTE invalid, try to get
+
+- [ ] TODO: complete this part
+
+## 7. Example Analysis: Intel Core i7/Linux Memory System
+
+### 7.1. Core i7 AT
+
+### 7.2. Linux VM System
+
+#### 7.2.1. Linux VM Region
+
+the region is called **VM Region**  
+
+#### 7.2.2. Linux PF Exception Handler
+
+## 8. Memory Mapping
+
+### 8.1. Review Shared Object
+
+### 8.2. Review `fork` Function
+
+### 8.3. Review `execve` Function
+
+### 8.4. Use `mmap` Function to Do User-Level MM
+
+## 9. Dynamic Memory Allocation
+
+- [ ] TODO: no need, learn in future  
+
+### 9.1. `malloc` and `free` Function
+
+### 9.2. Why We Need Dynamic Memory Allocation
+
+### 9.3. Allocator's Requirements and Objects
+
+### 9.4. Fragmentation(碎片)
+
+### 9.5. Realization Problem
+
+### 9.6. Implicit Free Linked List
+
+### 9.7. Putting Allocated Blocks
