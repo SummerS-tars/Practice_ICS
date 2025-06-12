@@ -1,0 +1,36 @@
+in swap.o
+
+whether or not:  
+
+1. have a symbol table entry in the .symtab in swap.o?
+2. if so in 1. 
+    1. defined by which module?
+    2. symbol type?
+    3. assigned in which section?
+
+buf[]
+    yes
+    m.o
+    extern
+    UNDEF
+
+bufp0
+    yes
+    swap.o
+    global
+    .data
+
+bufp1
+    yes
+    swap.o
+    global
+    COMMON
+
+swap
+    yes
+    swap.0
+    global
+    .text
+
+temp
+    no
