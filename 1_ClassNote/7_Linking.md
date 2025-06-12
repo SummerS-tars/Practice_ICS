@@ -50,7 +50,7 @@ it will enable us to better understand huge programs, avoid of some dangerous bu
     - [10.1. Definition and Benefits](#101-definition-and-benefits)
     - [10.2. How Dose Shared Library Realize `Share`?](#102-how-dose-shared-library-realize-share)
     - [10.3. How to Generate Shared Library](#103-how-to-generate-shared-library)
-- [11. Load and Link DLL in Application](#11-load-and-link-dll-in-application)
+- [11. Load and Link Dynamic Library in Application](#11-load-and-link-dynamic-library-in-application)
 - [12. PIC(Position-Independent Code, 位置无关代码)](#12-picposition-independent-code-位置无关代码)
     - [12.1. PIC Data Reference](#121-pic-data-reference)
     - [12.2. PIC Function Invocation](#122-pic-function-invocation)
@@ -304,7 +304,7 @@ and they only exist in the relocatable object file(`.o`)
 how linker `ld` resolve the references of symbols?  
 relate every reference to one concrete symbol definition in the input object files' symbol tables  
 
-most of the time, there problems will be resolved by compiler  
+most of the time, the problems will be resolved by compiler  
 but the most annoying thing is:  
 the reference of a global symbol  
 
@@ -317,19 +317,22 @@ so the question must be solved by linker later
 if the linker can't find the symbol referenced in any modules  
 it will report an error  
 but how about the situation that the same symbol is defined in different modules?  
-*to by honest, it is the situation we should get rid of*  
+
+*to be honest, it is the situation we should get rid of*  
 *however, we still need to understand this in case of this situation happens*  
+*and sometimes, we may need to use the symbol in the other module, we need to know how to do it to avoid some unimaginable errors*  
 
 ### 6.1. Local Symbols
 
 - local non-static variables: stored on the stack  
+    *so it has nothing to do with linking*  
     linker knows nothing about them  
 - local static C variables: stored in `.bss` or `.data`  
 
 ### 6.2. Global Symbols
 
 At compilation, compiler will output all the global symbol to assembler  
-wether **strong** or **weak**  
+whether **strong** or **weak**  
 and compiler will code these info implicitly into the symbol table in the object file  
 
 #### 6.2.1. Symbols Attributes
@@ -355,7 +358,9 @@ Symbols attributes: **strong** or **weak**
 3. in the situation that there are several weak symbols with the same name  
     one of them will be used randomly  
 
-- [ ] test examples to be added here
+test examples: 4_TestCode/Review/Linking/strongOrWeak  
+there are some differences between real test and the CSAPP  
+maybe because of the different version of gcc  
 
 what these means to us?  
 
@@ -376,26 +381,28 @@ usually with the suffix `.a`
 it can also be taken as an input file to `ld`  
 only the needed object modules will be copied to construct the executable file  
 
+and we can use `ar` to create a static library(the input is some `.o` files)  
+
+it is different from the object files as when linking, only needed object modules in the static library will be copied to construct the executable file  
+
 ## 7. Relocation(重定位)
 
 ### 7.1. Relocation Entry(重定位条目)
 
 *in fact, we can just take meaning of inside point of `entry`*  
-*witch is used by assembler to tell liker how to modify this reference when constructing the executable file*  
+*witch is used by assembler to tell linker how to modify this reference when constructing the executable file*  
 
 the relocation entry of code stored in `.rel.text` section  
 for initialized data in `.rel.data` section  
 
 ```c
 typedef struct {
-    long    offset;
-    long    type:32,
-            symbol:32;
-    long    addend;
+    long    offset;     /* offset of the reference to relocate */
+    long    type:32,    /* relocation type */
+            symbol:32;  /* symbol table index */
+    long    addend;     /* constant part of relocation expression */
 } Elf64_Rela;
 ```
-
-- [ ] explanation to be added here  
 
 ELF defines 32 types different relocation  
 two basic types:  
@@ -424,11 +431,11 @@ refaddr = ADDR(s) + r.offset
 relref = (unsigned) (ADDR(r.symbol) + r.addend - refaddr)  
 *here the reference in machine code actually denotes the offset between the address right after itself and the symbol's address*  
 
-*book here use `refptr` to denote the pointer to the reference here*  
+*book uses `refptr` to denote the pointer to the reference here*  
 *here I use a more intuitive representation as relref*  
 *refptr = relref  
 
-*the actual frequency of call:*  
+*the actual sequence of calling:*  
 *1. push PC to stack*  
 *2. add refaddr to PC*  
 
@@ -436,7 +443,8 @@ relref = (unsigned) (ADDR(r.symbol) + r.addend - refaddr)
 
 *refptr = (unsigned) (ADDR(r.symbol) + r.addend)  
 
-- [ ] question here, maybe the r.addend here is always 0 ?  
+question here, maybe the r.addend here is always 0 ?  
+depends on the relocation type  
 
 ## 8. Executable File
 
@@ -463,6 +471,8 @@ among these parts:
 *we can find `.rel` is no longer exist here*  
 *for the executable file has been fully linked here*  
 *so the `.rel` is no more needed*  
+
+*supplement: make clear about the difference between `section`(节) and `segment`(段)*  
 
 ## 9. Load Executable File
 
@@ -502,7 +512,7 @@ two ways:
 
 - [ ] example to be added here  
 
-## 11. Load and Link DLL in Application
+## 11. Load and Link Dynamic Library in Application
 
 Linking at runtime  
 
@@ -525,7 +535,7 @@ the offset between any instruction in the code section and the data in the data 
 Making use of this fact  
 the compiler generate a table called GOT(Global Offset Table)  
 at the beginning of the data section  
-all the object modules witch reference the global object have their own GOTs  
+all the object modules which reference the global object have their own GOTs  
 
 every data object(procedure or global var) referenced by the object module  
 will have an 8-byte entry in the GOT  
@@ -533,12 +543,13 @@ and compiler will generate a relocation entry for each of them
 which will be relocated by dynamic linker at load time  
 to make sure the entry in GOT have the right absolute address of the object  
 
+- [ ] Can dynamic linker relocate the GOT at runtime?
+
 *all in all*  
 *the GOT will contains the absolute address of the global object referenced by the object module*  
-*and why we use GOT is because of the fixed runtime offset between GOT and instruction*  
+*and why we can use GOT is because of the fact that runtime offset between GOT and instruction(which refers to the dynamic object) is fixed*  
 
-- [ ] here still get some confusion  
-    about how GOT get the absolute address of the global object?  
+- [ ] how dose GOT get the absolute address of the global object?  
 
 ### 12.2. PIC Function Invocation
 
@@ -550,6 +561,10 @@ The cooperation between GOT and PLT is very complex
 here not mentioned right now  
 
 - [ ] to be added here  
+
+a investigation:  
+
+[Record Disassembly of Demo GOT](../5_Lab/Week10/Reference/recordDisasDemoGOT.md)
 
 ## 13. Library Interpositioning(库打桩)
 
