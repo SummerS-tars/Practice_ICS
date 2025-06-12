@@ -103,13 +103,13 @@ and every section is a contiguous block of byte sequence
 to construct the executable file, two main tasks will be done by ld:  
 
 1. **symbol resolution(符号解析)**  
-2.**重定位(relocation)**  
+2. **relocation(重定位)**  
 
 just remember:  
-object file is all fo bytes  
+object file is all of bytes  
 constructed by some blocks  
 some include code, some include data  
-and else include data structures to instruct ld and loader  
+and others include data structures to instruct ld and loader  
 
 ## 3. Object File(目标文件)
 
@@ -178,21 +178,21 @@ they have a generic name: ELF binaries
 - `.rel.text` section  
     a table of the addr in `.text` section  
     *`.rel` means relocation*  
-    *usually not included in executable file for not needed in exe file*  
+    *usually not included in executable file for it is not needed in executable file*  
 
 - `.rel.data` section  
     include info of rel info of all global vars referenced or defined by modules  
     - [ ] can't understand here right noe  
 
 - `.debug` section  
-    *only included when `-g` arg is used*
+    *is included only when `-g` arg is used*
     a table including the symbols used to debug  
     including:  
     - local vars and type definitions  
     - global vars  
     - raw C source file  
 - `.line` section  
-    *only included when `-g` arg is used*  
+    *is included only when `-g` arg is used*  
     a table including the line number of the source code and the addr of the code in `.text` section  
     *used to debug*  
 - `.strtab` section  
@@ -200,7 +200,8 @@ they have a generic name: ELF binaries
     including:  
     - symbol tables in `.systab` and `.debug`  
     - section names in section header  
-- Section header table
+- Section header table  
+    describes the sections in the object file  
 
 ## 5. Symbol and Symbol Table(符号和符号表)
 
@@ -233,7 +234,7 @@ it's a point really important
 ### 5.3. Attention
 
 any vars called `local vars` in C program  
-are not included in `.strtab` section  
+are not included in `.symtab` section  
 they are managed in stack at runtime  
 **witch is not cared by `ld`**  
 
@@ -250,17 +251,53 @@ actually an array consists of structures with the structure as follows:
 
 ```c
 typedef struct {
-    int     name;
-    char    type:4,
-            binding:4;
-    char    reserved;
-    short   section;
-    long    value;
-    long    size;
+    int     name;       /* string table offset */ 
+    char    type:4,     /* function or data (4 bits) */
+            binding:4; /* global or local (4 bits) */
+    char    reserved;   /* unused */
+    short   section;    /* section header index */
+    long    value;      /* section offset or absolute address */
+    long    size;       /* object size in bytes */
 } Elf64_Symbol;
 ```
 
-- [ ] more details to be added here
+- `value`:  
+    - for `.o`: offset from the section the symbol is defined in  
+    - for `a.out`: absolute address of the symbol
+
+each symbol will be assigned into some section in the object file  
+which is denoted by `section` field(section字段)  
+
+`section` field is an entry in the symbol table  
+which stores the index of the section the symbol belongs to  
+
+the index is to the section header table  
+which is an array which stores the info of the sections in the object file  
+*(like name, size, address, etc.)*  
+
+there are three pseudosections, can also be the value in the `section` field:  
+
+1. ABS  
+    symbols that should not be relocated  
+2. UNDEF  
+    for undefined symbols: referenced in the object module but defined elsewhere  
+3. COMMON  
+    uninitialized data objects that are note yet allocated  
+    *we can find it is very similar to `.bss`, but it has some detailed difference between `.bss`*  
+
+    if we define a uninitialized global var in a module, the compiler will first mark it as `COMMON` in the relocatable object file  
+    the linker will resolve it and finally assign it to the `.bss` section  
+    *why do so? as there may be many modules defining the same uninitialized global var, the linker will treat them(denoted by `COMMON`) as only one same symbol*  
+
+the pseudosections don't really have a corresponding section, so they don't have entries in the section header table  
+
+and unlike the other sections, they don't really occupy space in the object file(so it is `pseudo` here)  
+they only act as instructions to linker to inform it how to resolve this symbol  
+
+and they only exist in the relocatable object file(`.o`)  
+*that is to say, they will be omitted in the executable file*  
+
+*attention, the symbols that are assigned in the pseudosections also in the `.symtab` section*  
 
 ## 6. Symbol Resolution(符号解析)
 
