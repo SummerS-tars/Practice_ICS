@@ -1,0 +1,57 @@
+gcc -o test.exe *.c
+E:\_ComputerLearning\_Environment\w64devkit\bin/ld.exe: C:\Users\Sum\AppData\Local\Temp\cc5b4abv.o:foo5.c:(.data+0x4): multiple definition of `x'; C:\Users\Sum\AppData\Local\Temp\ccmPCelt.o:bar5.c:(.bss+0x0): first defined here
+collect2.exe: error: ld returned 1 exit status
+
+on linux
+
+gcc -Wall -Og -o test foo5.c bar5.c
+/usr/bin/ld: /tmp/ccOsbP3i.o:(.bss+0x0): multiple definition of `x'; /tmp/ccyWCaiI.o:(.data+0x0): first defined here
+collect2: error: ld returned 1 exit status
+
+
+
+
+if we change the x in bar5.c to extern
+it can be linked successfully
+
+gcc -Wall -Og -o test foo5.c bar5.c
+
+but no warning?
+(on the CSAPP, there should be a warning)
+
+on windows
+
+.\test.exe
+1145141919810
+x = 1D4B42, y = 1BF52
+it smells a little like shit
+x = 0, y = 80000000
+
+on linux
+
+./test
+1145141919810
+x = 1D4B42, y = 1BF52
+it smells a little like shit
+x = 0, y = 80000000
+
+
+
+besides, if we don't use -Og
+it gets a different result
+
+on windows
+
+.\test.exe
+1145141919810
+x = 1D4B42, y = 1BF52
+it smells a little like shit
+x = 0, y = 1BF52
+
+on linux
+
+./test
+1145141919810
+x = 1D4B42, y = 1BF52
+it smells a little like shit
+x = 0, y = 1BF52

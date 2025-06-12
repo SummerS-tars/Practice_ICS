@@ -1,0 +1,3 @@
+gcc -o test.exe *.c
+E:\_ComputerLearning\_Environment\w64devkit\bin/ld.exe: C:\Users\Sum\AppData\Local\Temp\ccSysB2w.o:foo4.c:(.bss+0x0): multiple definition of `x'; C:\Users\Sum\AppData\Local\Temp\ccxRZoUb.o:bar4.c:(.bss+0x0): first defined here
+collect2.exe: error: ld returned 1 exit status

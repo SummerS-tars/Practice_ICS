@@ -1,0 +1,5 @@
+gcc -o main main.c libmath.a
+
+./main
+sum(3, 4) = 7
+mul(3, 4) = 12

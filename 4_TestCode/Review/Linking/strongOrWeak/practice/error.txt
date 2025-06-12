@@ -1,0 +1,13 @@
+gcc -Og -Wall -o test.exe *.c
+m1.c:1:6: warning: return type of 'main' is not 'int' [-Wmain]
+    1 | void main() {
+      |      ^~~~
+m2.c:1:5: warning: 'main' is usually a function [-Wmain]
+    1 | int main = 1;
+      |     ^~~~
+m2.c: In function 'p2':
+m2.c:5:1: warning: control reaches end of non-void function [-Wreturn-type]
+    5 | }
+      | ^
+E:\_ComputerLearning\_Environment\w64devkit\bin/ld.exe: C:\Users\Sum\AppData\Local\Temp\cc2VX4tR.o:m2.c:(.data+0x0): multiple definition of `main'; C:\Users\Sum\AppData\Local\Temp\ccICAQpM.o:m1.c:(.text+0x0): first defined here
+collect2.exe: error: ld returned 1 exit status
