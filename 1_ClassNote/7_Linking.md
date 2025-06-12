@@ -275,7 +275,7 @@ the index is to the section header table
 which is an array which stores the info of the sections in the object file  
 *(like name, size, address, etc.)*  
 
-there are three pseudosections, can also be the value in the `section` field:  
+there are three pseudosections, can also be the value in the `section` field(in the above structure):  
 
 1. ABS  
     symbols that should not be relocated  
